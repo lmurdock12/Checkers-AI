@@ -1,24 +1,20 @@
 #include "SDL.h"
+#include "Game.h"
 
+Game *game = nullptr;
 
 int main(int argc, char*arv[]) {
 
-	//Init SDL subsytems
-	SDL_Init(SDL_INIT_EVERYTHING);
+	game = new Game();
+	game->init("Checkers", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 600, false);
+	while (game->running()) {
 
-	//Create Window
-	SDL_Window *window = SDL_CreateWindow("Checkers", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, SDL_WINDOW_SHOWN);
+		game->handleEvents();
+		game->update();
+		game->render();
+	}
 
-	//Create Renderer
-	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-
-	//Clear and Present
-	SDL_RenderClear(renderer);
-	SDL_RenderPresent(renderer);
-	SDL_Delay(3000);
-
-	
+	game->clean();
 	return 0;
 
 }
