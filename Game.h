@@ -1,6 +1,5 @@
-#pragma once
 #include "SDL.h"
-#include "SDL_image.h"
+
 
 
 class Game {
@@ -24,26 +23,12 @@ public:
 
 	bool running() { return isRunning; }
 
-	static SDL_Renderer *renderer;
-	static SDL_Event event;
-
-	enum {
-		GRID_TYPE_NONE = 0,
-		GRID_TYPE_B,
-		GRID_TYPE_R
-	};
-
-	int cnt;
-	//Current Player;
-	int current_player;
-
-
 private:
 	
 	bool isRunning;
 	SDL_Window *window;
-
-\
+	SDL_Renderer *renderer;
+	SDL_Event event;
 
 
 
