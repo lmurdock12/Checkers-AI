@@ -115,6 +115,41 @@ void CheckerManager::move_chip(int type, int xpos, int ypos) {
 }
 
 
+void CheckerManager::remove_chip(int type, int xpos, int ypos) {
+
+	if (type == GRID_TYPE_B) {
+		checker_array[ypos][xpos] = GRID_TYPE_NONE;
+	}
+	else if (type == GRID_TYPE_R) {
+		checker_array[ypos][xpos] = GRID_TYPE_NONE;
+	}
+
+}
+
+
+
+
+
+
+
+bool CheckerManager::is_chip(int type, int xpos, int ypos) {
+
+	if (type == GRID_TYPE_B) {
+		if (checker_array[ypos][xpos] == GRID_TYPE_B)
+			return true;
+	}
+	else if (type == GRID_TYPE_R) {
+		if (checker_array[ypos][xpos] == GRID_TYPE_R)
+			return true;
+	}
+	return false;
+
+}
+
+
+
+
+
 void CheckerManager::render() {
 
 

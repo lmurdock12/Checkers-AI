@@ -40,7 +40,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 		isRunning = false; //stop the game if it does not initialize 
 	}
 
-
+	currently_selected = false;
 	board = new GameObject("assets/checker_board.png", renderer, 0, 0, 800, 800);
 	chip_manager = new CheckerManager("assets/checker.png", "assets/red_checker.png",renderer, 100, 100, GRID_TYPE_B);
 	current_player = GRID_TYPE_B;
@@ -64,15 +64,51 @@ void Game::handleEvents() {
 				std::cout << "X is: " << x_cord << std::endl;
 				std::cout << "Y is: " << y_cord << std::endl;
 				std::cout << "Current player is: " << current_player << std::endl;
+				std::cout << "Currently Selected: " << currently_selected << std::endl;
 				if (current_player == GRID_TYPE_B) {
 
-					chip_manager->move_chip(current_player, x_cord, y_cord);
-					current_player = GRID_TYPE_R;
+
+
+					//if its a chip
+					if (chip_manager->is_chip(current_player, x_cord, y_cord) && currently_selected == false) {
+						currently_selected = true;
+						current_xpos = x_cord;
+						current_ypos = y_cord;
+
+						//update the textures
+					}
+
+					if (currently_selected) {
+
+						if ((y_cord == (current_ypos - 1) || y_cord == (current_ypos - 2)) && x_cord == current_xpos) {
+							chip_manager->move_chip(current_player, x_cord, y_cord);
+							chip_manager->remove_chip(current_player, current_xpos, current_ypos);
+							currently_selected = false;
+							current_player = GRID_TYPE_R;
+						}
+
+					}
+
 				}
 				else {
+					//if its a chip
+					if (chip_manager->is_chip(current_player, x_cord, y_cord) && currently_selected == false) {
+						currently_selected = true;
+						current_xpos = x_cord;
+						current_ypos = y_cord;
 
-					chip_manager->move_chip(current_player, x_cord, y_cord);
-					current_player = GRID_TYPE_B;
+						//update the textures
+					}
+
+					if (currently_selected) {
+
+						if ((y_cord == (current_ypos + 1) || y_cord == (current_ypos + 2)) && x_cord == current_xpos) {
+							chip_manager->move_chip(current_player, x_cord, y_cord);
+							chip_manager->remove_chip(current_player, current_xpos, current_ypos);
+							currently_selected = false;
+							current_player = GRID_TYPE_B;
+						}
+					}
 				}
 			}
 		default:

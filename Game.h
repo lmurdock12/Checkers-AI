@@ -33,9 +33,14 @@ public:
 		GRID_TYPE_R
 	};
 
-	int cnt;
+
 	//Current Player;
 	int current_player;
+
+	//Current Chip
+	bool currently_selected;
+	int current_xpos;
+	int current_ypos;
 
 
 private:

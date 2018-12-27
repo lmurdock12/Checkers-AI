@@ -11,6 +11,8 @@ public:
 	void render();
 
 	void move_chip(int type, int xpos, int ypos);
+	void remove_chip(int type, int xpos, int ypos);
+	bool is_chip(int type, int xpos, int ypos);
 
 
 private:
