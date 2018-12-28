@@ -25,9 +25,9 @@ public:
 	bool running() { return isRunning; }
 
 
-
-
-	void validate_move(int xpos, int ypos);
+	//Funcs that will probably get moved:
+	void select_chip(int xpos, int ypos, int*& arr);
+	void validate_move(int xpos, int ypos,int*& current);
 
 
 	static SDL_Renderer *renderer;
@@ -43,10 +43,9 @@ public:
 	//Current Player;
 	int current_player;
 
-	//Current Chip
+	//Current Chip //probably will get moved
 	bool currently_selected;
-	int current_xpos;
-	int current_ypos;
+	int* current_cords;
 
 
 private:
