@@ -24,6 +24,12 @@ public:
 
 	bool running() { return isRunning; }
 
+
+
+
+	void validate_move(int xpos, int ypos);
+
+
 	static SDL_Renderer *renderer;
 	static SDL_Event event;
 

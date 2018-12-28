@@ -64,63 +64,28 @@ void Game::handleEvents() {
 				std::cout << "X is: " << x_cord << std::endl;
 				std::cout << "Y is: " << y_cord << std::endl;
 				std::cout << "Current player is: " << current_player << std::endl;
-				std::cout << "Currently Selected: " << currently_selected << std::endl;
+				//std::cout << "Currently Selected: " << currently_selected << std::endl;
+
 				if (current_player == GRID_TYPE_B) {
-
-
-
-					//if its a chip
-					if (chip_manager->is_chip(current_player, x_cord, y_cord) && currently_selected == false) {
-						currently_selected = true;
-						current_xpos = x_cord;
-						current_ypos = y_cord;
-
-						//update the textures
-					}
-
-					if (currently_selected) {
-
-						if ((y_cord == (current_ypos - 1) || y_cord == (current_ypos - 2)) && x_cord == current_xpos) {
-							chip_manager->move_chip(current_player, x_cord, y_cord);
-							chip_manager->remove_chip(current_player, current_xpos, current_ypos);
-							currently_selected = false;
-							current_player = GRID_TYPE_R;
-						}
-
-					}
-
+					Game::validate_move(x_cord, y_cord);
 				}
 				else {
-					//if its a chip
-					if (chip_manager->is_chip(current_player, x_cord, y_cord) && currently_selected == false) {
-						currently_selected = true;
-						current_xpos = x_cord;
-						current_ypos = y_cord;
-
-						//update the textures
-					}
-
-					if (currently_selected) {
-
-						if ((y_cord == (current_ypos + 1) || y_cord == (current_ypos + 2)) && x_cord == current_xpos) {
-							chip_manager->move_chip(current_player, x_cord, y_cord);
-							chip_manager->remove_chip(current_player, current_xpos, current_ypos);
-							currently_selected = false;
-							current_player = GRID_TYPE_B;
-						}
-					}
+					Game::validate_move(x_cord, y_cord);
 				}
 			}
+
 		default:
 			break;
 		}
 	}
 }
 
+
 void Game::update() {
 	//board->Update();
 
 }
+
 
 void Game::render() {
 
@@ -142,4 +107,52 @@ void Game::clean() {
 	SDL_Quit();
 	std::cout << "Game Cleaned!" << std::endl;
 
+}
+
+
+void Game::validate_move(int xpos, int ypos) {
+
+	//if player selected a valid chip, get the coords and set currently_selected to true
+	if (chip_manager->is_chip(current_player, xpos, ypos) && currently_selected == false) {
+
+		//::ADD:: func to see if chip is movable
+
+		currently_selected = true;
+		current_xpos = xpos;
+		current_ypos = ypos;
+		std::cout << "Current xpos: " << current_xpos << std::endl;
+		std::cout << "Current ypos: " << current_ypos << std::endl;
+		//update the textures
+	}
+
+	//Determine if the new spot is a valid move
+	if (currently_selected && (current_player == GRID_TYPE_B)) {
+
+		//check if the chip is proper diagonal move
+		if (((xpos == current_xpos - 1) || (xpos == current_xpos + 1)) && (ypos == (current_ypos - 1))) {
+			std::cout << "Current_ypos-1: " << current_ypos - 1 << std::endl;
+			//check to see if the spot currently has a chip of that type
+			if (!(chip_manager->is_chip(current_player, xpos, ypos))) {
+
+				chip_manager->move_chip(current_player, xpos, ypos); //move the chip
+				chip_manager->remove_chip(current_player, current_xpos, current_ypos); //remove the old chip
+				currently_selected = false;
+				current_player = GRID_TYPE_R; //switch players
+			}
+		}
+
+	} else if (currently_selected && (current_player == GRID_TYPE_R))
+
+		//check if chip proper diagonal move
+		if (((xpos == current_xpos + 1) || (xpos == current_xpos - 1)) && (ypos == current_ypos + 1)) {
+
+			//check to see if the spot currently has a chip of that type
+			if (!(chip_manager->is_chip(current_player, xpos, ypos))) {
+
+				chip_manager->move_chip(current_player, xpos, ypos); //move the chip
+				chip_manager->remove_chip(current_player, current_xpos, current_ypos); //remove the old chip
+				currently_selected = false; 
+				current_player = GRID_TYPE_B; //switch player
+			}
+		}
 }
