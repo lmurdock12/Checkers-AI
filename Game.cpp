@@ -41,8 +41,14 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 	}
 
 	currently_selected = false;
+
+	//Best code I have so far scaling the render on linux to get back to the original size of the png
+	//SDL_RenderSetLogicalSize(renderer, 800, 800);
+	SDL_RenderSetScale(renderer, 2,2);
+
+
 	board = new GameObject("assets/checker_board.png", renderer, 0, 0, 800, 800);
-	chip_manager = new CheckerManager("assets/checker.png", "assets/red_checker.png",renderer, 100, 100, GRID_TYPE_B);
+	chip_manager = new CheckerManager("assets/checker.png", "assets/red_checker.png", "assets/blue_transparent.png", "assets/red_transparent.png",renderer, 100, 100, GRID_TYPE_B);
 	current_player = GRID_TYPE_B;
 	current_cords = new int[2];
 }
@@ -60,8 +66,8 @@ void Game::handleEvents() {
 			//SDL_MouseButtonEvent b = event.button;
 			if (event.button.button == SDL_BUTTON_LEFT) {
 				SDL_GetMouseState(&x, &y);
-				int x_cord = x/100;
-				int y_cord = y/100;
+				int x_cord = (x/100)/2; //Divide by size of square (100) and then divide by 2 since the board is currently doubled to 1600 pixels.
+				int y_cord = (y/100)/2;
 				std::cout << "X is: " << x_cord << std::endl;
 				std::cout << "Y is: " << y_cord << std::endl;
 				std::cout << "Current player is: " << current_player << std::endl;
@@ -70,8 +76,10 @@ void Game::handleEvents() {
 				//If a chip is not currently selected, then see if a valid chip selection is made.
 				if (!currently_selected) { Game::select_chip(x_cord, y_cord, current_cords); }
 
+
+										//GRID_TYPE_B = blue player
 				if (current_player == GRID_TYPE_B) {
-					//if chip selected
+					//if chip selected and equals grid type B
 					//show valid moves
 					//determine if move is valid and update chips
 
@@ -103,8 +111,6 @@ void Game::render() {
 
 	board->Render();
 	chip_manager->render();
-	
-
 	//board->Render();
 	SDL_RenderPresent(renderer); //render all the objects
 
@@ -135,7 +141,10 @@ void Game::select_chip(int xpos, int ypos, int*& arr) {
 			if (!chip_manager->is_chip(current_player, xpos - 1, ypos - 1)
 				&& !chip_manager->is_chip(current_player, xpos + 1, ypos - 1)) {
 
+				chip_manager->make_trans(current_player, xpos, ypos);
 				currently_selected = true;
+				// possible create a seperate transparent function to make easier to read?
+				//put move chip function here
 				arr[0] = xpos;
 				arr[1] = ypos;
 
@@ -147,6 +156,7 @@ void Game::select_chip(int xpos, int ypos, int*& arr) {
 			if (!chip_manager->is_chip(current_player, xpos - 1, ypos + 1)
 				&& !chip_manager->is_chip(current_player, xpos + 1, ypos + 1)) {
 
+				chip_manager->make_trans(current_player, xpos, ypos);
 				currently_selected = true;
 				arr[0] = xpos;
 				arr[1] = ypos;

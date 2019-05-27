@@ -1,0 +1,15 @@
+-Add transparency for a selected chip
+-Test how the chips move
+- Allow the chips to hop each other.
+-update the name of the blue chip throughout the program
+
+-need to allow reselect when a player is going (if he selects one chip he can reselect a different chip on the same turn)
+
+add transparent options to the enum of the board and then use the current cords to set that to transparent
+**must reset it when either a chip is moved or a different chip is selected
+
+
+
+
+--allow deselection of chips
+

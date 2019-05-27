@@ -3,7 +3,9 @@
 class CheckerManager
 {
 public:
-	CheckerManager(const char* texturesheet_B,const char* texturesheet_R, SDL_Renderer* ren, int objHeight, int objWidth, int color);
+
+	//what does color do
+	CheckerManager(const char* texturesheet_B,const char* texturesheet_R, const char* texturesheet_B_TRANS, const char* texturesheet_R_TRANS, SDL_Renderer* ren, int objHeight, int objWidth, int color);
 	~CheckerManager();
 
 	void update_checker(int type, int xpos, int ypos);
@@ -13,6 +15,7 @@ public:
 	void move_chip(int type, int xpos, int ypos);
 	void remove_chip(int type, int xpos, int ypos);
 	bool is_chip(int type, int xpos, int ypos);
+	void make_trans(int type, int xpos, int ypos);
 
 
 private:
@@ -20,7 +23,10 @@ private:
 	enum {
 		GRID_TYPE_NONE = 0,
 		GRID_TYPE_B, //1
-		GRID_TYPE_R //2
+		GRID_TYPE_R, //2
+		GRID_TYPE_B_TRANS, //3
+		GRID_TYPE_R_TRANS //4
+	
 	};
 
 	int current_player;
@@ -46,5 +52,7 @@ private:
 	//Texture of the object
 	SDL_Texture* objTexture_B;
 	SDL_Texture* objTexture_R;
+	SDL_Texture* objTexture_B_TRANS;
+	SDL_Texture* objTexture_R_TRANS;
 };
 

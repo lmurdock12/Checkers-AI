@@ -3,7 +3,7 @@
 #include "Game.h"
 #include <iostream>
 
-CheckerManager::CheckerManager(const char* texturesheet_B, const char* texturesheet_R, SDL_Renderer* ren, int objHeight, int objWidth, int color)
+CheckerManager::CheckerManager(const char* texturesheet_B, const char* texturesheet_R, const char* texturesheet_B_TRANS, const char* texturesheet_R_TRANS, SDL_Renderer* ren, int objHeight, int objWidth, int color)
 {
 	renderer = ren; //Initialize the renderer to use
 	current_player = color; //Initialize which player to start with
@@ -15,6 +15,7 @@ CheckerManager::CheckerManager(const char* texturesheet_B, const char* texturesh
 
 
 	objTexture_B = TextureManager::LoadTexture(texturesheet_B, ren); //Load the texture to use
+	objTexture_B_TRANS = TextureManager::LoadTexture(texturesheet_B_TRANS,ren);
 	srcRect_B.h = objH;
 	srcRect_B.w = objW;
 	srcRect_B.x = 0;
@@ -29,6 +30,7 @@ CheckerManager::CheckerManager(const char* texturesheet_B, const char* texturesh
 	
 
 	objTexture_R = TextureManager::LoadTexture(texturesheet_R, ren);
+	objTexture_R_TRANS = TextureManager::LoadTexture(texturesheet_R_TRANS, ren);
 
 	srcRect_R.h = objH;
 	srcRect_R.w = objW;
@@ -58,7 +60,7 @@ CheckerManager::~CheckerManager()
 
 void CheckerManager::initBoard() {
 
-
+	checker_array[1][5] = GRID_TYPE_B_TRANS;
 
 	for (int i = 0; i < 3; i++) { //rows 0,1,2
 		if (i % 2 == 1) {
@@ -89,7 +91,7 @@ void CheckerManager::initBoard() {
 }
 
 
-
+//what is the point of this
 void CheckerManager::update_checker(int type, int xpos, int ypos) {
 	if (type == GRID_TYPE_B) {
 		destRect_B.x = xpos;
@@ -113,6 +115,20 @@ void CheckerManager::move_chip(int type, int xpos, int ypos) {
 	}
 
 }
+
+void CheckerManager::make_trans(int type, int xpos, int ypos) {
+
+	if (type == GRID_TYPE_B) {
+		checker_array[ypos][xpos] = GRID_TYPE_B_TRANS;
+	}
+	else if (type == GRID_TYPE_R){
+		checker_array[ypos][xpos] = GRID_TYPE_R_TRANS;
+	}
+
+}
+
+
+
 
 
 void CheckerManager::remove_chip(int type, int xpos, int ypos) {
@@ -151,7 +167,7 @@ bool CheckerManager::is_chip(int type, int xpos, int ypos) {
 
 
 void CheckerManager::render() {
-
+	//Renders the grid of chips to the screen
 
 
 	for (int i = 0; i < 8; i++) {
@@ -163,8 +179,16 @@ void CheckerManager::render() {
 			else if (checker_array[i][j] == GRID_TYPE_R) {
 				CheckerManager::update_checker(GRID_TYPE_R, j * 100, i * 100);
 				SDL_RenderCopy(renderer, objTexture_R, &srcRect_R, &destRect_R);
-
 			}
+			else if (checker_array[i][j] == GRID_TYPE_B_TRANS) {
+				CheckerManager::update_checker(GRID_TYPE_B, j * 100, i * 100);
+				SDL_RenderCopy(renderer, objTexture_B_TRANS,&srcRect_B, &destRect_B);
+			}
+			else if (checker_array[i][j] == GRID_TYPE_R_TRANS) {
+					CheckerManager::update_checker(GRID_TYPE_R, j * 100, i * 100);
+					SDL_RenderCopy(renderer, objTexture_R_TRANS,&srcRect_R, &destRect_R);
+			}
+
 
 
 		}
