@@ -33,6 +33,7 @@ private:
 
 
 	//Checker array
+	//When making calls to checker array the format is checker_array[ypos][xpos] due to how the array is created
 	int checker_array[8][8];
 
 

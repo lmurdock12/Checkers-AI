@@ -60,7 +60,6 @@ CheckerManager::~CheckerManager()
 
 void CheckerManager::initBoard() {
 
-	checker_array[1][5] = GRID_TYPE_B_TRANS;
 
 	for (int i = 0; i < 3; i++) { //rows 0,1,2
 		if (i % 2 == 1) {
@@ -86,7 +85,9 @@ void CheckerManager::initBoard() {
 				checker_array[i][j] = GRID_TYPE_B;
 		}
 	}
-
+                // Y, X????
+	//checker_array[1][4] = GRID_TYPE_B;
+	//checker_array[4][1] = GRID_TYPE_R;	
 
 }
 
