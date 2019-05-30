@@ -22,10 +22,10 @@ private:
 
 	enum {
 		GRID_TYPE_NONE = 0,
-		GRID_TYPE_B, //1
-		GRID_TYPE_R, //2
-		GRID_TYPE_B_TRANS, //3
-		GRID_TYPE_R_TRANS //4
+		GRID_TYPE_B=1, //1
+		GRID_TYPE_R=-1, //2
+		GRID_TYPE_B_TRANS=2, //3
+		GRID_TYPE_R_TRANS=3 //4
 	
 	};
 

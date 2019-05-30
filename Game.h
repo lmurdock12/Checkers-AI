@@ -36,13 +36,14 @@ public:
 
 	enum {
 		GRID_TYPE_NONE = 0,
-		GRID_TYPE_B,
-		GRID_TYPE_R
+		GRID_TYPE_B=1,
+		GRID_TYPE_R=-1,
 	};
 
 
 	//Current Player;
 	int current_player;
+	int direction;
 
 	//Current Chip //probably will get moved
 	bool currently_selected;

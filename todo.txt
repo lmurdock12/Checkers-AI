@@ -12,7 +12,7 @@ add transparent options to the enum of the board and then use the current cords 
 
 
 --allow deselection of chips
---fix some of chip selection logic
+--allow double hops if available
 
 1. add all the functionality just added to blue to red.
 

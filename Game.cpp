@@ -51,6 +51,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 	chip_manager = new CheckerManager("assets/checker.png", "assets/red_checker.png", "assets/blue_transparent.png", "assets/red_transparent.png",renderer, 100, 100, GRID_TYPE_B);
 	current_player = GRID_TYPE_B;
 	current_cords = new int[2];
+	direction = 1;
 }
 
 void Game::handleEvents() {
@@ -134,12 +135,10 @@ void Game::select_chip(int xpos, int ypos, int*& arr) {
 	//if player selected a valid chip, get the coords and set currently_selected to true
 	if (chip_manager->is_chip(current_player, xpos, ypos) && currently_selected == false) {
 
-		//assure there can be a move
-		if (current_player == GRID_TYPE_B) { //if its a blue move
-
+			
 			//if the two diagonal moves are not both blue chip's
-			if (!chip_manager->is_chip(current_player, xpos - 1, ypos - 1)
-				&& !chip_manager->is_chip(current_player, xpos + 1, ypos - 1)) {
+			if (!chip_manager->is_chip(current_player, xpos - 1, ypos+(-1*current_player))
+				|| !chip_manager->is_chip(current_player, xpos + 1, ypos+(-1*current_player))) {
 
 				chip_manager->make_trans(current_player, xpos, ypos);
 				currently_selected = true;
@@ -149,7 +148,13 @@ void Game::select_chip(int xpos, int ypos, int*& arr) {
 				arr[1] = ypos;
 
 			}
-		}
+
+
+			//need to check diagonal red-->blue's
+
+
+
+		/*
 		else { //if its a red move
 
 			//if the two diagonal moves are not both red chip's
@@ -162,7 +167,9 @@ void Game::select_chip(int xpos, int ypos, int*& arr) {
 				arr[1] = ypos;
 
 			}
+
 		}
+		*/
 
 		std::cout << "Selected Chip Xpos: " << arr[0] << std::endl;
 		std::cout << "Selected Chip Ypos: " << arr[1] << std::endl;
@@ -179,7 +186,7 @@ void Game::validate_move(int xpos, int ypos,int*& current) {
 	// this should all be refractored into differenct functions based on the type of move the validator is checking
 
 	//Determine if the new spot is a valid move
-	if (currently_selected && (current_player == GRID_TYPE_B)) {
+	if (currently_selected)  { // && (current_player == GRID_TYPE_B)) {
 
 
 
@@ -187,45 +194,56 @@ void Game::validate_move(int xpos, int ypos,int*& current) {
 		//Logic for basic nontakeover left move
 		//If left diagonal is selected and there is no red or blue chip located there then move the chip
 		//maybe refractor and add a no_chip function instead of calling is_chip twice?
-		if (  xpos == current[0] -1 && ypos == current[1] -1 && !(chip_manager->is_chip(current_player, current[0]-1, current[1]-1))
-			&& !(chip_manager->is_chip(GRID_TYPE_R, current[0]-1, current[1]-1)) ) {   
+		if (  xpos == current[0]-1 && ypos == current[1]+(-1*current_player) && !chip_manager->is_chip(current_player, current[0]-1, current[1]+(-1*current_player) )
+			&& !chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(-1*current_player)) ) {   
+
+				std::cout << "Current Player:" << current_player << std::endl;
+				std::cout << "Blue Chip: " << !(chip_manager->is_chip(current_player, current[0]-1, current[1]+(-1*current_player))) << std::endl;
+				std::cout << "Red Chip: " << !chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(-1*current_player)) << std::endl;
 
 
 				chip_manager->move_chip(current_player, xpos, ypos); //move chip to new location
 				chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
 				currently_selected = false;
-				current_player = GRID_TYPE_R;
+				current_player = current_player*-1;
 
-		} else if (  xpos == current[0]+1 && ypos == current[1]-1 && !(chip_manager->is_chip(current_player, current[0]+1, current[1]-1))
-					&& !(chip_manager->is_chip(GRID_TYPE_R, current[0]+1, current[1]-1)) ) {
+		} else if (  xpos == current[0]+1 && ypos == current[1]+(-1*current_player) && !(chip_manager->is_chip(current_player, current[0]+1, current[1]+(-1*current_player)))
+					&& !(chip_manager->is_chip(current_player*-1, current[0]+1, current[1]+(-1*current_player))) ) {
 
 						chip_manager->move_chip(current_player, xpos, ypos); //move chip to new location
 						chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
 						currently_selected = false;
-						current_player = GRID_TYPE_R;
+						current_player = current_player*-1;
 
 		}
 
 
 
-		//Logic to check if chip is potential diagonal move
-		if (((xpos == current[0] - 2) || (xpos == current[0] + 2)) && (ypos == (current[1] - 2))) {
+		//Logic to check if chip is potential diagonal move spot   (The location the chip will hop to)
+		if (((xpos == current[0] - 2) || (xpos == current[0] + 2)) && (ypos == (current[1]+(-2*current_player)))) { //add a chip check here
 			//std::cout << "Current_ypos-1: " << current[1] - 1 << std::endl;
 			//check to see if the spot currently has a chip of that type
-			if ( (chip_manager->is_chip(GRID_TYPE_R, current[0]-1, current[1]-1) && xpos == current[0]-2) )  {
+
+			if ( (chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(-1*current_player)) && xpos == current[0]-2) &&
+							!chip_manager->is_chip(current_player, current[0]-2, current[1]+(-2*current_player)))  {
 
 				chip_manager->move_chip(current_player, xpos, ypos); //move the chip
 				chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
-				chip_manager->remove_chip(GRID_TYPE_R, current[0]-1, current[1]-1);
+				chip_manager->remove_chip(current_player*-1, current[0]-1, current[1]+(-1*current_player)); //remove opponents chip
+				currently_selected = false;
+				current_player = current_player*-1; //switch players
 
-			} else if (xpos = current[0]+2 && chip_manager->is_chip(GRID_TYPE_R, current[0]+1,current[1]-1)) {
+			} else if (xpos == current[0]+2 && chip_manager->is_chip(-1*current_player, current[0]+1,current[1]+(-1*current_player)) &&
+							!chip_manager->is_chip(current_player, current[0]+2, current[1]+(-2*current_player)) ) { //#
+
 				chip_manager->move_chip(current_player, xpos, ypos); //move the chip
 				chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
-				chip_manager->remove_chip(GRID_TYPE_R, current[0]+1, current[1]-1);
+				chip_manager->remove_chip(current_player*-1, current[0]+1, current[1]+(-1*current_player)); //remove opponents chip  //#
 
+				currently_selected = false;
+				current_player = current_player*-1; //switch players
 			}
-			currently_selected = false;
-			current_player = GRID_TYPE_R; //switch players
+
 		}
 
 
@@ -234,7 +252,7 @@ void Game::validate_move(int xpos, int ypos,int*& current) {
 
 
 
-	} else if (currently_selected && (current_player == GRID_TYPE_R))
+	} /*else if (currently_selected && (current_player == GRID_TYPE_R))
 
 		//check if chip proper diagonal move
 		if (((xpos == current[0] + 1) || (xpos == current[0] - 1)) && (ypos == current[1] + 1)) {
@@ -247,5 +265,5 @@ void Game::validate_move(int xpos, int ypos,int*& current) {
 				currently_selected = false; 
 				current_player = GRID_TYPE_B; //switch player
 			}
-		}
+		}*/
 }
