@@ -14,7 +14,7 @@ add transparent options to the enum of the board and then use the current cords 
 --allow deselection of chips
 --allow double hops if available
 
-1. add all the functionality just added to blue to red.
+
 
 BUGS:
 1. problems with selecting lower row chips and moving

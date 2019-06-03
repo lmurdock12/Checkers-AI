@@ -19,3 +19,5 @@ g++ Main.cpp Game.cpp CheckerManager.cpp GameObject.cpp TextureManager.cpp -w -l
 
 //TODO:
 Update make file to work.
+
+git reset --hard 0d1d7fc32

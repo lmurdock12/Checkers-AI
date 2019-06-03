@@ -16,6 +16,7 @@ public:
 	void remove_chip(int type, int xpos, int ypos);
 	bool is_chip(int type, int xpos, int ypos);
 	void make_trans(int type, int xpos, int ypos);
+	bool any_chip( int xpos, int ypos);
 
 
 private:

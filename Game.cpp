@@ -136,19 +136,47 @@ void Game::select_chip(int xpos, int ypos, int*& arr) {
 	if (chip_manager->is_chip(current_player, xpos, ypos) && currently_selected == false) {
 
 			
-			//if the two diagonal moves are not both blue chip's
-			if (!chip_manager->is_chip(current_player, xpos - 1, ypos+(-1*current_player))
+			//if the two diagonal moves are not the current colors chip's
+			if (!chip_manager->is_chip(current_player, xpos - 1, ypos+(-1*current_player)) 
 				|| !chip_manager->is_chip(current_player, xpos + 1, ypos+(-1*current_player))) {
 
-				chip_manager->make_trans(current_player, xpos, ypos);
-				currently_selected = true;
-				// possible create a seperate transparent function to make easier to read?
-				//put move chip function here
-				arr[0] = xpos;
-				arr[1] = ypos;
+
+
+										//if theres NOT anopposite color chip one spot diagonnal left and chip covering the hop spot left
+				if(   !(  chip_manager->is_chip(current_player*-1, xpos-1, ypos+(-1*current_player)) &&
+					  chip_manager->any_chip(xpos-2, ypos+(-2*current_player)  ) ) ||
+					  
+					    !( chip_manager->is_chip(current_player*-1, xpos+1, ypos+(-1*current_player)) &&
+					  chip_manager->any_chip(xpos+2, ypos+(-2*current_player)) ) ) {
+
+					chip_manager->make_trans(current_player, xpos, ypos);
+					currently_selected = true;
+					// possible create a seperate transparent function to make easier to read?
+					//put move chip function here
+					arr[0] = xpos;
+					arr[1] = ypos;
+				}
+				}
+
+/*
+					if ( (!chip_manager->is_chip(current_player, xpos-2, ypos+(-2*current_player)) &&
+					!chip_manager->is_chip(current_player*-1, xpos-2, ypos+(-2*current_player)) ) ||
+						( !chip_manager->is_chip(current_player, xpos+2, ypos+(-2*current_player)) &&
+					!chip_manager->is_chip(current_player*-1, xpos+2, ypos+(-2*current_player))) ) {
+
+							chip_manager->make_trans(current_player, xpos, ypos);
+							currently_selected = true;
+							// possible create a seperate transparent function to make easier to read?
+							//put move chip function here
+							arr[0] = xpos;
+							arr[1] = ypos;
+				}
+
+
+
 
 			}
-
+*/
 
 			//need to check diagonal red-->blue's
 
@@ -217,15 +245,17 @@ void Game::validate_move(int xpos, int ypos,int*& current) {
 
 		}
 
-
+	//potentially replace the current[0] with just like xpos in the certain if statements
 
 		//Logic to check if chip is potential diagonal move spot   (The location the chip will hop to)
 		if (((xpos == current[0] - 2) || (xpos == current[0] + 2)) && (ypos == (current[1]+(-2*current_player)))) { //add a chip check here
 			//std::cout << "Current_ypos-1: " << current[1] - 1 << std::endl;
 			//check to see if the spot currently has a chip of that type
 
+
+							//opposite chip color one spot to the diagonal left									//mouse click y pos on the hop spot
 			if ( (chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(-1*current_player)) && xpos == current[0]-2) &&
-							!chip_manager->is_chip(current_player, current[0]-2, current[1]+(-2*current_player)))  {
+							!chip_manager->any_chip( current[0]-2, current[1]+(-2*current_player)) ) {
 
 				chip_manager->move_chip(current_player, xpos, ypos); //move the chip
 				chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
@@ -233,8 +263,10 @@ void Game::validate_move(int xpos, int ypos,int*& current) {
 				currently_selected = false;
 				current_player = current_player*-1; //switch players
 
+
+														//opposite chip color one spot to right
 			} else if (xpos == current[0]+2 && chip_manager->is_chip(-1*current_player, current[0]+1,current[1]+(-1*current_player)) &&
-							!chip_manager->is_chip(current_player, current[0]+2, current[1]+(-2*current_player)) ) { //#
+							!chip_manager->any_chip(current[0]+2, current[1]+(-2*current_player)) ) {
 
 				chip_manager->move_chip(current_player, xpos, ypos); //move the chip
 				chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip

@@ -163,6 +163,17 @@ bool CheckerManager::is_chip(int type, int xpos, int ypos) {
 
 }
 
+bool CheckerManager::any_chip( int xpos, int ypos) {
+
+	
+		if (!(checker_array[ypos][xpos] == GRID_TYPE_NONE)) {
+
+			return true;
+		}
+
+	return false;
+
+}
 
 
 
