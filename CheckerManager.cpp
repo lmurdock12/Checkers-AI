@@ -3,7 +3,8 @@
 #include "Game.h"
 #include <iostream>
 
-CheckerManager::CheckerManager(const char* texturesheet_B, const char* texturesheet_R, const char* texturesheet_B_TRANS, const char* texturesheet_R_TRANS, SDL_Renderer* ren, int objHeight, int objWidth, int color)
+CheckerManager::CheckerManager(const char* texturesheet_B, const char* texturesheet_R, const char* texturesheet_B_TRANS, const char* texturesheet_R_TRANS
+						,const char* texturesheet_B_KING, const char* texturesheet_R_KING, SDL_Renderer* ren, int objHeight, int objWidth, int color)
 {
 	renderer = ren; //Initialize the renderer to use
 	current_player = color; //Initialize which player to start with
@@ -15,7 +16,8 @@ CheckerManager::CheckerManager(const char* texturesheet_B, const char* texturesh
 
 
 	objTexture_B = TextureManager::LoadTexture(texturesheet_B, ren); //Load the texture to use
-	objTexture_B_TRANS = TextureManager::LoadTexture(texturesheet_B_TRANS,ren);
+	objTexture_B_TRANS = TextureManager::LoadTexture(texturesheet_B_TRANS,ren); //Load the transparent chip
+	objTexture_B_KING = TextureManager::LoadTexture(texturesheet_B_KING, ren); //Load the king chip
 	srcRect_B.h = objH;
 	srcRect_B.w = objW;
 	srcRect_B.x = 0;
@@ -29,8 +31,9 @@ CheckerManager::CheckerManager(const char* texturesheet_B, const char* texturesh
 	
 	
 
-	objTexture_R = TextureManager::LoadTexture(texturesheet_R, ren);
-	objTexture_R_TRANS = TextureManager::LoadTexture(texturesheet_R_TRANS, ren);
+	objTexture_R = TextureManager::LoadTexture(texturesheet_R, ren); //Load the texture to use
+	objTexture_R_TRANS = TextureManager::LoadTexture(texturesheet_R_TRANS, ren); //Load the transparent chip
+	objTexture_R_KING = TextureManager::LoadTexture(texturesheet_R_KING, ren); //Load the king chip
 
 	srcRect_R.h = objH;
 	srcRect_R.w = objW;
@@ -86,8 +89,9 @@ void CheckerManager::initBoard() {
 		}
 	}
                 // Y, X????
-	//checker_array[1][4] = GRID_TYPE_B;
-	//checker_array[4][1] = GRID_TYPE_R;	
+	//checker_array[7][4] = GRID_TYPE_B;
+	//checker_array[4][1] = GRID_TYPE_R;
+
 
 }
 
@@ -151,11 +155,11 @@ void CheckerManager::remove_chip(int type, int xpos, int ypos) {
 
 bool CheckerManager::is_chip(int type, int xpos, int ypos) {
 
-	if (type == GRID_TYPE_B) {
+	if (type == GRID_TYPE_B || type == GRID_TYPE_B_KING) {
 		if (checker_array[ypos][xpos] == GRID_TYPE_B)
 			return true;
 	}
-	else if (type == GRID_TYPE_R) {
+	else if (type == GRID_TYPE_R || type == GRID_TYPE_B_KING) {
 		if (checker_array[ypos][xpos] == GRID_TYPE_R)
 			return true;
 	}
@@ -165,7 +169,8 @@ bool CheckerManager::is_chip(int type, int xpos, int ypos) {
 
 bool CheckerManager::any_chip( int xpos, int ypos) {
 
-	
+		std::cout << "chip spot is: " << checker_array[6][7] << std::endl;
+		std::cout << "empty spot is: " << checker_array[7][8] << std::endl;
 		if (!(checker_array[ypos][xpos] == GRID_TYPE_NONE)) {
 
 			return true;
@@ -176,12 +181,36 @@ bool CheckerManager::any_chip( int xpos, int ypos) {
 }
 
 
+bool CheckerManager::is_king(int type, int xpos, int ypos) {
 
+	if (type == GRID_TYPE_B) {
+		if (checker_array[ypos][xpos] == GRID_TYPE_B_KING)
+			return true;
+
+	} else if (type == GRID_TYPE_R) {
+		if (checker_array[ypos][xpos] == GRID_TYPE_R_KING)
+			return true;
+	}
+	return false;
+
+}
+
+void CheckerManager::make_king(int type, int xpos, int ypos) {
+
+
+	if(type == GRID_TYPE_B && ypos == 0) {
+		checker_array[ypos][xpos] = GRID_TYPE_B_KING;
+	} else if (type == GRID_TYPE_R && ypos == 7) {
+		checker_array[ypos][xpos] = GRID_TYPE_R_KING;
+	}
+
+
+}
 
 void CheckerManager::render() {
 	//Renders the grid of chips to the screen
 
-
+	//std::cout << checker_array << std::endl;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			if (checker_array[i][j] == GRID_TYPE_B) {
@@ -197,10 +226,19 @@ void CheckerManager::render() {
 				SDL_RenderCopy(renderer, objTexture_B_TRANS,&srcRect_B, &destRect_B);
 			}
 			else if (checker_array[i][j] == GRID_TYPE_R_TRANS) {
-					CheckerManager::update_checker(GRID_TYPE_R, j * 100, i * 100);
-					SDL_RenderCopy(renderer, objTexture_R_TRANS,&srcRect_R, &destRect_R);
+				CheckerManager::update_checker(GRID_TYPE_R, j * 100, i * 100);
+				SDL_RenderCopy(renderer, objTexture_R_TRANS,&srcRect_R, &destRect_R);
 			}
+			else if (checker_array[i][j] == GRID_TYPE_B_KING) {
+				CheckerManager::update_checker(GRID_TYPE_B, j * 100, i * 100);
+				SDL_RenderCopy(renderer, objTexture_B_KING,&srcRect_B, &destRect_B);
 
+			}
+			else if (checker_array[i][j] == GRID_TYPE_R_KING) {
+				CheckerManager::update_checker(GRID_TYPE_R, j * 100, i * 100);
+				SDL_RenderCopy(renderer, objTexture_R_KING,&srcRect_R, &destRect_R);
+
+			}
 
 
 		}
