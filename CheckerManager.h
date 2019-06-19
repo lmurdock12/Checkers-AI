@@ -6,19 +6,19 @@ public:
 
 	//what does color do
 	CheckerManager(const char* texturesheet_B,const char* texturesheet_R, const char* texturesheet_B_TRANS, const char* texturesheet_R_TRANS
-						,const char* texturesheet_B_KING,const char* texturesheet_R_KING, SDL_Renderer* ren, int objHeight, int objWidth, int color);
+						,const char* texturesheet_B_KING,const char* texturesheet_R_KING, const char* texturesheet_B_KING_TRANS, const char* texturesheet_R_KING_TRANS, SDL_Renderer* ren, int objHeight, int objWidth, int color);
 	~CheckerManager();
 
 	void update_checker(int type, int xpos, int ypos);
 	void initBoard();
 	void render();
 
-	void move_chip(int type, int xpos, int ypos);
+	void move_chip(int type, int xpos, int ypos,int old_x, int old_y, bool& isKing);
 	void remove_chip(int type, int xpos, int ypos);
 	bool is_chip(int type, int xpos, int ypos);
 	void make_trans(int type, int xpos, int ypos);
 	bool any_chip( int xpos, int ypos);
-	bool is_king(int type, int xpos, int ypos);
+	bool is_king(int type, int xpos, int ypos, bool currentKing);
 	void make_king(int type, int xpos, int ypos);
 
 
@@ -31,7 +31,10 @@ private:
 		GRID_TYPE_B_TRANS=2, //3
 		GRID_TYPE_R_TRANS=3, //4
 		GRID_TYPE_B_KING=4,
-		GRID_TYPE_R_KING=5
+		GRID_TYPE_R_KING=5,
+		GRID_TYPE_B_KING_TRANS=6,
+		GRID_TYPE_R_KING_TRANS=7
+
 	
 	};
 
@@ -63,5 +66,7 @@ private:
 	SDL_Texture* objTexture_R_TRANS;
 	SDL_Texture* objTexture_B_KING;
 	SDL_Texture* objTexture_R_KING;
+	SDL_Texture* objTexture_B_KING_TRANS;
+	SDL_Texture* objTexture_R_KING_TRANS;
 };
 

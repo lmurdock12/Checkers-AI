@@ -8,6 +8,9 @@ To run the complied code type: ./01_hello_SDL
 A way to shortcut the long command each time to compile the code is to use the makefile. To use the makefile to complie the code just use: make all      //ensure the file is saved as 'makefile' or use:make -f filename
 
 
+Add transparency to text:
+convert image.png -alpha set -channel a -evaluate set 65% +channel newimage.png
+
 Make sure to change the header file FOR LINUX to: #include <SDL2/SDL.h>
 
 Installing SDLimage 2

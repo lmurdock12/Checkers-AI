@@ -28,8 +28,8 @@ public:
 
 	//Funcs that will probably get moved:
 	void select_chip(int xpos, int ypos, int*& arr);
-	void validate_move(int xpos, int ypos,int*& current);
-
+	void validate_move(int xpos, int ypos,int*& current, bool isKing);
+	void another_move(int xpos, int ypos, int*& current);
 
 	static SDL_Renderer *renderer;
 	static SDL_Event event;
@@ -44,6 +44,8 @@ public:
 	//Current Player;
 	int current_player;
 	int direction;
+	bool isKing = false;
+	int negate = -1;
 
 	//Current Chip //probably will get moved
 	bool currently_selected;

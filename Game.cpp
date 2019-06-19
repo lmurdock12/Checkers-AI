@@ -49,7 +49,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 
 	board = new GameObject("assets/checker_board.png", renderer, 0, 0, 800, 800);
 	chip_manager = new CheckerManager("assets/checker.png", "assets/red_checker.png", "assets/blue_transparent.png", "assets/red_transparent.png",
-										"assets/blue_king.png","assets/red_king.png",renderer, 100, 100, GRID_TYPE_B);
+										"assets/blue_king.png","assets/red_king.png","assets/blue_king_trans.png", "assets/red_king_trans.png",renderer, 100, 100, GRID_TYPE_B);
 	current_player = GRID_TYPE_B;
 	current_cords = new int[2];
 	direction = 1;
@@ -58,12 +58,12 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 void Game::handleEvents() {
 
 	while (SDL_PollEvent(&event)) { //get the event
-
 		switch (event.type) {
 		case SDL_QUIT://if the X is pressed then end the game
 			isRunning = false;
 			break;
 		case SDL_MOUSEBUTTONDOWN:
+			std::cout << "---------------" << std::endl;
 			int x, y;
 			//SDL_MouseButtonEvent b = event.button;
 			if (event.button.button == SDL_BUTTON_LEFT) {
@@ -72,27 +72,68 @@ void Game::handleEvents() {
 				int y_cord = (y/100)/2;
 				std::cout << "X is: " << x_cord << std::endl;
 				std::cout << "Y is: " << y_cord << std::endl;
+
+				//std::cout << "IS KING: " << isKing << std::endl;
+				//if (!isKing) { isKing = chip_manager->is_king(current_player, x_cord, y_cord, isKing);}
 				//std::cout << "Current player is: " << current_player << std::endl;
+				//std::cout << "IS KING: " << isKing << std::endl;
+				//std::cout << "Currently selected: " << currently_selected << std::endl;
 				//std::cout << "Currently Selected: " << currently_selected << std::endl;
 
 				//If a chip is not currently selected, then see if a valid chip selection is made.
-				if (!currently_selected) { Game::select_chip(x_cord, y_cord, current_cords); }
+				if (!currently_selected) { 
+
+					Game::select_chip(x_cord, y_cord, current_cords);
+					//isKing = 0; 
+					//isKing = chip_manager->is_king(current_player, x_cord, y_cord, isKing);
+				}
 
 
-										//GRID_TYPE_B = blue player
-				if (current_player == GRID_TYPE_B) {
-					//if chip selected and equals grid type B
-					//show valid moves
-					//determine if move is valid and update chips
 
-					if (currently_selected) {Game::validate_move(x_cord, y_cord, current_cords);} //will be redone
+				//if chip selected and equals grid type B
+				//show valid moves
+				//determine if move is valid and update chips
+				
+				//std::cout << "KING: " << isKing << std::endl;
+				if (currently_selected) {
+
+					//isKing = false;
+					//isKing = chip_manager->is_king(current_player, x_cord, y_cord, isKing);
+					//std::cout << "IS KING: " << isKing << std::endl;
+					//std::cout << "Currently selected: " << currently_selected << std::endl;
+
+					std::cout << "First" << std::endl;
+					negate = -1;
+					Game::validate_move(x_cord, y_cord, current_cords, isKing);
+
+					isKing = chip_manager->is_king(current_player,current_cords[0], current_cords[1], isKing);
+
+					if (currently_selected && isKing) {
+						std::cout << "Second"<<  std::endl;
+						negate = 1;
+						Game::validate_move(x_cord, y_cord, current_cords, isKing);
+
+					}
+
+					//if currently selected == false
+					//check to see if another jump move can be made
+					//if it can be made then allow movement
+					/*
+					if (!currently_selected) {
+						int* old_current = current_cords;
+						current_cords[0] = x_cord;
+						current_cords[1] = y_cord;
+						Game::another_move(old_current[0])
+
+					}
+					*/
+
+
+
+				} 
 					//at the end of validate move function, run the spot through the select chip function, if a different chip is selected then select that one.
 					
-				}
-				else {
 
-					if (currently_selected) { Game::validate_move(x_cord, y_cord,current_cords); } //will be redone
-				}
 			}
 
 		default:
@@ -145,8 +186,8 @@ void Game::select_chip(int xpos, int ypos, int*& arr) {
 			//check to see if the chip is a king
 				//set kingvar true if it is
 
-			std::cout << "Left: " << chip_manager->any_chip(xpos-1,ypos+1) << std::endl;
-			std::cout << "Right: " << chip_manager->any_chip(xpos+1,ypos+1) << std::endl;
+			//std::cout << "Left: " << chip_manager->any_chip(xpos-1,ypos+1) << std::endl;
+			//std::cout << "Right: " << chip_manager->any_chip(xpos+1,ypos+1) << std::endl;
 			//If the chip is along the left side of rails and there is not a move, then break out of function
 			if (xpos==0 && ( ( chip_manager->is_chip(current_player*-1, xpos+1, ypos+(-1*current_player)) &&
 					  chip_manager->any_chip(xpos+2, ypos+(-2*current_player))) || chip_manager->is_chip(current_player, xpos+1,ypos+(-1*current_player)) )	) {
@@ -180,7 +221,13 @@ void Game::select_chip(int xpos, int ypos, int*& arr) {
 			//there is some weird functionality with the the two corner spots on the board (row 1 and row 6), the above two if statements show that 100 is stored
 			//as the value for the spot that it is trying to determine if there is a chip there or not. It recognizes that the spot is 'technically' not empty
 			//and blocks the chip from having to move since there is a chip on the other spot too.
+			
+			//If the two diagonal spots are the same color as the chip then return since no move possible.
+			else if (chip_manager->is_chip(current_player, xpos-1, ypos+(-1*current_player)) && 
+					chip_manager->is_chip(current_player, xpos+1, ypos+(-1*current_player))) {
 
+					return;
+			}
 
 
 			//if the two diagonal moves are not the current colors chip's
@@ -191,17 +238,31 @@ void Game::select_chip(int xpos, int ypos, int*& arr) {
 
 										//if theres NOT an opposite color chip one spot diagonnal left and chip covering the hop spot left
 				if(   !(  chip_manager->is_chip(current_player*-1, xpos-1, ypos+(-1*current_player)) &&
-					  chip_manager->any_chip(xpos-2, ypos+(-2*current_player)  ) ) ||
-					  
-					    !( chip_manager->is_chip(current_player*-1, xpos+1, ypos+(-1*current_player)) &&
-					  chip_manager->any_chip(xpos+2, ypos+(-2*current_player)) ) ) {
+					  chip_manager->any_chip(xpos-2, ypos+(-2*current_player)  ) )) {
 
-					chip_manager->make_trans(current_player, xpos, ypos);
-					currently_selected = true;
-					// possible create a seperate transparent function to make easier to read?
-					//put move chip function here
-					arr[0] = xpos;
-					arr[1] = ypos;
+
+						chip_manager->make_trans(current_player, xpos, ypos);
+						currently_selected = true;
+						// possible create a seperate transparent function to make easier to read?
+						//put move chip function here
+						arr[0] = xpos;
+						arr[1] = ypos;
+
+					  }
+					  
+
+
+
+
+				if (!( chip_manager->is_chip(current_player*-1, xpos+1, ypos+(-1*current_player)) &&
+						chip_manager->any_chip(xpos+2, ypos+(-2*current_player)) ) ) {
+
+						chip_manager->make_trans(current_player, xpos, ypos);
+						currently_selected = true;
+						// possible create a seperate transparent function to make easier to read?
+						//put move chip function here
+						arr[0] = xpos;
+						arr[1] = ypos;
 				}
 				}
 
@@ -255,13 +316,13 @@ void Game::select_chip(int xpos, int ypos, int*& arr) {
 }
 
 
-void Game::validate_move(int xpos, int ypos,int*& current) {
+void Game::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 
 
-
-
-
+	//std::cout << "Current player: " << current_player << std::endl;
+	std::cout << "Negate val: " << negate << std::endl;
+	std::cout << "ANYCHIP: " << chip_manager->any_chip(current[0]+2, current[1]+(negate*2*current_player)) << std::endl;
 
 	// this should all be refractored into differenct functions based on the type of move the validator is checking
 
@@ -274,15 +335,17 @@ void Game::validate_move(int xpos, int ypos,int*& current) {
 		//Logic for basic nontakeover left move
 		//If left diagonal is selected and there is no red or blue chip located there then move the chip
 		//maybe refractor and add a no_chip function instead of calling is_chip twice?						//replace this with any chip
-		if (  xpos == current[0]-1 && ypos == current[1]+(-1*current_player) && !chip_manager->is_chip(current_player, current[0]-1, current[1]+(-1*current_player) )
-			&& !chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(-1*current_player)) ) {   
+		if (  xpos == current[0]-1 && ypos == current[1]+(negate*current_player) && !chip_manager->is_chip(current_player, current[0]-1, current[1]+(negate*current_player) )
+			&& !chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)) ) {   
 
-				std::cout << "Current Player:" << current_player << std::endl;
-				std::cout << "Blue Chip: " << !(chip_manager->is_chip(current_player, current[0]-1, current[1]+(-1*current_player))) << std::endl;
-				std::cout << "Red Chip: " << !chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(-1*current_player)) << std::endl;
-
-
-				chip_manager->move_chip(current_player, xpos, ypos); //move chip to new location
+				//std::cout << "Current Player:" << current_player << std::endl;
+				//std::cout << "Blue Chip: " << !(chip_manager->is_chip(current_player, current[0]-1, current[1]+(-1*current_player))) << std::endl;
+				//std::cout << "Red Chip: " << !chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(-1*current_player)) << std::endl;
+	
+				
+				chip_manager->move_chip(current_player, xpos, ypos, current[0], current[1], isKing); //move chip to new location
+				
+				
 				chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
 
 				//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
@@ -292,10 +355,10 @@ void Game::validate_move(int xpos, int ypos,int*& current) {
 				currently_selected = false;
 				current_player = current_player*-1;
 
-		} else if (  xpos == current[0]+1 && ypos == current[1]+(-1*current_player) && !(chip_manager->is_chip(current_player, current[0]+1, current[1]+(-1*current_player)))
-					&& !(chip_manager->is_chip(current_player*-1, current[0]+1, current[1]+(-1*current_player))) ) {
+		} else if (  xpos == current[0]+1 && ypos == current[1]+(negate*current_player) && !(chip_manager->is_chip(current_player, current[0]+1, current[1]+(negate*current_player)))
+					&& !(chip_manager->is_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player))) ) {
 
-						chip_manager->move_chip(current_player, xpos, ypos); //move chip to new location
+						chip_manager->move_chip(current_player, xpos, ypos, current[0], current[1], isKing); //move chip to new location
 						chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
 
 						//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
@@ -309,18 +372,18 @@ void Game::validate_move(int xpos, int ypos,int*& current) {
 	//potentially replace the current[0] with just like xpos in the certain if statements
 
 		//Logic to check if chip is potential diagonal move spot   (The location the chip will hop to)
-		if (((xpos == current[0] - 2) || (xpos == current[0] + 2)) && (ypos == (current[1]+(-2*current_player)))) { //add a chip check here
+		if (((xpos == current[0] - 2) || (xpos == current[0] + 2)) && (ypos == (current[1]+(negate*2*current_player)))) { //add a chip check here
 			//std::cout << "Current_ypos-1: " << current[1] - 1 << std::endl;
 			//check to see if the spot currently has a chip of that type
 
 
 							//opposite chip color one spot to the diagonal left									//mouse click y pos on the hop spot
-			if ( (chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(-1*current_player)) && xpos == current[0]-2) &&
-							!chip_manager->any_chip( current[0]-2, current[1]+(-2*current_player)) ) {
+			if ( (chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)) && xpos == current[0]-2) &&
+							!chip_manager->any_chip( current[0]-2, current[1]+(negate*2*current_player)) ) {
 
-				chip_manager->move_chip(current_player, xpos, ypos); //move the chip
+				chip_manager->move_chip(current_player, xpos, ypos, current[0], current[1], isKing); //move the chip
 				chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
-				chip_manager->remove_chip(current_player*-1, current[0]-1, current[1]+(-1*current_player)); //remove opponents chip
+				chip_manager->remove_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)); //remove opponents chip
 
 				//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
 				chip_manager->make_king(current_player,xpos,ypos);
@@ -330,12 +393,14 @@ void Game::validate_move(int xpos, int ypos,int*& current) {
 
 
 														//opposite chip color one spot to right
-			} else if (xpos == current[0]+2 && chip_manager->is_chip(-1*current_player, current[0]+1,current[1]+(-1*current_player)) &&
-							!chip_manager->any_chip(current[0]+2, current[1]+(-2*current_player)) ) {
+			} else if (xpos == current[0]+2 && chip_manager->is_chip(-1*current_player, current[0]+1,current[1]+(negate*current_player)) &&
+							!chip_manager->any_chip(current[0]+2, current[1]+(negate*2*current_player)) ) {
 
-				chip_manager->move_chip(current_player, xpos, ypos); //move the chip
+
+						
+				chip_manager->move_chip(current_player, xpos, ypos, current[0], current[1], isKing); //move the chip
 				chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
-				chip_manager->remove_chip(current_player*-1, current[0]+1, current[1]+(-1*current_player)); //remove opponents chip  //#
+				chip_manager->remove_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player)); //remove opponents chip  //#
 
 				//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
 				chip_manager->make_king(current_player,xpos,ypos);
@@ -346,12 +411,61 @@ void Game::validate_move(int xpos, int ypos,int*& current) {
 
 		}
 
-
-
-		//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
-		//chip_manager->make_king(current_player*-1,xpos,ypos);
-
-
-
 	} 
+
+	//chip_manager->is_king(current_player, current[0], current[1]) 
+	//Check if king
+	/* 
+	if (chip_manager->is_king(current_player, current[0], current[1]) && currently_selected == true) {
+		negate = 1;
+		std::cout << "GOT HERE"<<  std::endl;
+		Game::validate_move(xpos, ypos, current);
+	} else {
+		negate = -1;
+	}
+	*/
+}
+
+
+void Game::another_move(int xpos, int ypos, int*& current){
+
+		if (((xpos == current[0] - 2) || (xpos == current[0] + 2)) && (ypos == (current[1]+(negate*2*current_player)))) { //add a chip check here
+			//std::cout << "Current_ypos-1: " << current[1] - 1 << std::endl;
+			//check to see if the spot currently has a chip of that type
+
+
+							//opposite chip color one spot to the diagonal left									//mouse click y pos on the hop spot
+			if ( (chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)) && xpos == current[0]-2) &&
+							!chip_manager->any_chip( current[0]-2, current[1]+(negate*2*current_player)) ) {
+
+				chip_manager->move_chip(current_player, xpos, ypos, current[0], current[1], isKing); //move the chip
+				chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
+				chip_manager->remove_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)); //remove opponents chip
+
+				//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
+				chip_manager->make_king(current_player,xpos,ypos);
+
+				currently_selected = false;
+				current_player = current_player*-1; //switch players
+
+
+														//opposite chip color one spot to right
+			} else if (xpos == current[0]+2 && chip_manager->is_chip(-1*current_player, current[0]+1,current[1]+(negate*current_player)) &&
+							!chip_manager->any_chip(current[0]+2, current[1]+(negate*2*current_player)) ) {
+
+
+						
+				chip_manager->move_chip(current_player, xpos, ypos, current[0], current[1], isKing); //move the chip
+				chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
+				chip_manager->remove_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player)); //remove opponents chip  //#
+
+				//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
+				chip_manager->make_king(current_player,xpos,ypos);
+
+				currently_selected = false;
+				current_player = current_player*-1; //switch players
+			}
+
+		}
+
 }
