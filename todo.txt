@@ -14,7 +14,11 @@ add transparent options to the enum of the board and then use the current cords 
 --allow deselection of chips
 --allow double hops if available
 
+reselect logic:
 
-
-BUGS:
-1. problems with selecting lower row chips and moving
+if currently selected:
+	call select chip 
+	if select = true:
+		call validate move logic
+	else:
+		regular validate move logic
