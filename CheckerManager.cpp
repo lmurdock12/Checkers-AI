@@ -70,7 +70,7 @@ void CheckerManager::initBoard() {
 	for (int i = 0; i < 3; i++) { //rows 0,1,2
 		if (i % 2 == 1) {
 			for (int j = 0; j < 8; j += 2) {
-				checker_array[i][j] = GRID_TYPE_R_KING;
+				checker_array[i][j] = GRID_TYPE_R;
 				checker_array[i][j+1] = GRID_TYPE_NONE;
 
 			}
@@ -79,7 +79,7 @@ void CheckerManager::initBoard() {
 		}
 		else { //even row
 			for (int j = 1; j < 8; j += 2) {
-				checker_array[i][j] = GRID_TYPE_R_KING;
+				checker_array[i][j] = GRID_TYPE_R;
 				checker_array[i][j-1] = GRID_TYPE_NONE;
 			}
 		}
@@ -91,13 +91,13 @@ void CheckerManager::initBoard() {
 	for (int i = 5; i < 8; i++) { //row
 		if (i % 2 == 1) { //odd row
 			for (int j = 0; j< 8; j += 2) {//column
-				checker_array[i][j] = GRID_TYPE_B_KING;
+				checker_array[i][j] = GRID_TYPE_B;
 				checker_array[i][j+1] = GRID_TYPE_NONE;
 			}
 		}
 		else { //even row
 			for (int j = 1; j < 8; j += 2) {//column
-				checker_array[i][j] = GRID_TYPE_B_KING;
+				checker_array[i][j] = GRID_TYPE_B;
 				checker_array[i][j-1] = GRID_TYPE_NONE;
 			}
 		}
@@ -225,8 +225,11 @@ bool CheckerManager::any_chip( int xpos, int ypos) {
 
 		//std::cout << "chip spot is: " << checker_array[6][7] << std::endl;
 		//std::cout << "empty spot is: " << checker_array[7][8] << std::endl;
-		std::cout << "The chip is: " << checker_array[ypos][xpos] << std::endl;
-		if (!(checker_array[ypos][xpos] == GRID_TYPE_NONE)) {
+		//std::cout << "The chip is: " << checker_array[ypos][xpos] << std::endl;
+		//
+		if (checker_array[ypos][xpos] == GRID_TYPE_B || checker_array[ypos][xpos] == GRID_TYPE_R ||
+			checker_array[ypos][xpos] == GRID_TYPE_B_KING || checker_array[ypos][xpos] == GRID_TYPE_R_KING ||
+			ypos < 0 || xpos < 0 || xpos > 7 || ypos > 7){
 
 			return true;
 		}

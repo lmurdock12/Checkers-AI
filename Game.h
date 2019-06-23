@@ -27,8 +27,8 @@ public:
 
 
 	//Funcs that will probably get moved:
-	void select_chip(int xpos, int ypos, int*& arr);
-	void validate_move(int xpos, int ypos,int*& current, bool isKing);
+	bool select_chip(int xpos, int ypos, int*& current);
+	bool validate_move(int xpos, int ypos,int*& current, bool isKing);
 	void another_move(int xpos, int ypos, int*& current);
 
 	static SDL_Renderer *renderer;
