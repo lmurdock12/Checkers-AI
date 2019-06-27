@@ -64,10 +64,38 @@ void Game::handleEvents() {
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			std::cout << "---------------" << std::endl;
+
 			int x, y;
 			//SDL_MouseButtonEvent b = event.button;
 			if (event.button.button == SDL_BUTTON_LEFT) {
 				SDL_GetMouseState(&x, &y);
+				std::cout << "X is: " << x << std::endl;
+				std::cout << "Y is: " << y << std::endl;
+
+				
+				pop_status = chip_manager->getPopupStatus();
+				if (pop_status) {
+					if (x>=400 && x <=1200 && y >= 400 && y <= 600) {
+							//make another move
+
+							chip_manager->make_trans(current_player, current_cords[0], current_cords[1]);
+
+							chip_manager->enablePopup(false);
+							currently_selected = true;
+					} else if (x>=400 && x<=1200 && y>=600 && y<=800){
+							//switch player
+							chip_manager->enablePopup(false);
+							currently_selected = false;
+							current_player = current_player*-1;
+					}
+
+
+				} else {
+
+
+
+
+
 				int x_cord = (x/100)/2; //Divide by size of square (100) and then divide by 2 since the board is currently doubled to 1600 pixels.
 				int y_cord = (y/100)/2;
 				//std::cout << "X is: " << x_cord << std::endl;
@@ -79,7 +107,7 @@ void Game::handleEvents() {
 					negate = -1;
 					Game::select_chip(x_cord, y_cord, current_cords);
 					std::cout << "zFirst" << std::endl;
-					isKing = chip_manager->is_king(current_player, x_cord, y_cord,isKing);
+					isKing = chip_manager->is_king(current_player, x_cord, y_cord);
 					if (!currently_selected && isKing) {
 						std::cout << "zSecond" << std::endl;
 						negate = 1;
@@ -104,7 +132,7 @@ void Game::handleEvents() {
 					negate = -1;
 					Game::validate_move(x_cord, y_cord, current_cords, isKing);
 
-					isKing = chip_manager->is_king(current_player,current_cords[0], current_cords[1], isKing);
+					isKing = chip_manager->is_king(current_player,current_cords[0], current_cords[1]);
 
 					if (currently_selected && isKing) {
 						std::cout << "Second"<<  std::endl;
@@ -112,41 +140,18 @@ void Game::handleEvents() {
 						Game::validate_move(x_cord, y_cord, current_cords, isKing);
 
 					}
-					/* 
-					if (currently_selected && cont) {
-						//If hop move was completed check to see if another hop move available
-						negate=-1;
-						 if (!(Game::select_chip(current_cords[0]-2,current_cords[1]+2*negate, current_cords) ||
-						Game::select_chip(current_cords[0]+2,current_cords[1]*2*negate, current_cords)) ) {
-								currently_selected = false;
-								cont = false;
-								current_player = current_player*-1;
 
-						}*/
-						
 
+
+				}
 
 				}
 
 
 
-					//if currently selected == false
-					//check to see if another jump move can be made
-					//if it can be made then allow movement
-					/*
-					if (!currently_selected) {
-						int* old_current = current_cords;
-						current_cords[0] = x_cord;
-						current_cords[1] = y_cord;
-						Game::another_move(old_current[0])
 
-					}
-					*/
-
-
-
-				 
-					//at the end of validate move function, run the spot through the select chip function, if a different chip is selected then select that one.
+					//at the end of validate move function, run the spot through the select chip function, 
+					//if a different chip is selected then select that one.
 					
 
 			}
@@ -202,7 +207,8 @@ bool Game::select_chip(int xpos, int ypos, int*& current) {
 			if ( (chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)) && xpos == current[0]-2) &&
 							!chip_manager->any_chip( current[0]-2, current[1]+(negate*2*current_player)) ) {
 
-				chip_manager->make_trans(current_player, current[0], current[1]);
+
+
 				currently_selected = true;
 				// possible create a seperate transparent function to make easier to read?
 				//put move chip function here
@@ -215,7 +221,7 @@ bool Game::select_chip(int xpos, int ypos, int*& current) {
 							!chip_manager->any_chip(current[0]+2, current[1]+(negate*2*current_player)) ) {
 
 
-				chip_manager->make_trans(current_player, current[0], current[1]);
+
 				currently_selected = true;
 				// possible create a seperate transparent function to make easier to read?
 				//put move chip function here
@@ -262,11 +268,13 @@ bool Game::select_chip(int xpos, int ypos, int*& current) {
 						return false;
 			} 
 			//ensure there is a spot to move on the last row to become king for blue chip
-			else if (ypos==6 && current_player == -1 && ( chip_manager->any_chip(xpos-1,ypos+1) && chip_manager->any_chip(xpos+1,ypos+1)) ) {
+			else if (ypos==6 && current_player == -1 && ( chip_manager->any_chip(xpos-1,ypos+1) && chip_manager->any_chip(xpos+1,ypos+1))
+						&& !chip_manager->is_king(current_player,xpos,ypos) ) {
 						return false;
 			} 
 			//ensure there is a spot to move on the last row to become king for red chip
-			else if (ypos==1 && current_player==1 && (chip_manager->any_chip(xpos-1,ypos-1) && chip_manager->any_chip(xpos+1,ypos-1)) ) {
+			else if (ypos==1 && current_player==1 && (chip_manager->any_chip(xpos-1,ypos-1) && chip_manager->any_chip(xpos+1,ypos-1)) 
+							&& !chip_manager->is_king(current_player,xpos,ypos)) {
 						return false;
 			}
 			//there is some weird functionality with the the two corner spots on the board (row 1 and row 6), the above two if statements show that 100 is stored
@@ -307,6 +315,7 @@ bool Game::select_chip(int xpos, int ypos, int*& current) {
 				//put move chip function here
 				current[0] = xpos;
 				current[1] = ypos;
+				return true;
 
 
 			}
@@ -410,7 +419,9 @@ bool Game::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 				if ((Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords) ||
 					Game::select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords)) ) {
-						currently_selected = true;
+						//currently_selected = true;
+						//render_popup = true;
+						chip_manager->enablePopup(true);
 						return true;
 					}
 					else {
@@ -439,27 +450,70 @@ bool Game::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 				//Update the new current spot:
 				current[0] = xpos;
 				current[1] = ypos;
+				//set the current chip location to the recently moved spot
 
-				if ((Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords) ||
-					Game::select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords)) ) {
-						currently_selected = true;
+				if (Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords) ||
+					Game::select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords))  {
+						//currently_selected = true;
+						chip_manager->enablePopup(true);
 						return true;
+						
 					}
 					else {
+						//Try negating the player to try the two other current possibilities
+						
+						negate *= -1;
+						if ((Game::select_chip(current_cords[0]-2, current_cords[1]+(2*negate*current_player),current_cords) ||
+						Game::select_chip(current_cords[0]+2, current_cords[1]+(2*negate*current_player),current_cords))) {
+								
+								negate *= -1;
+								chip_manager->enablePopup(true);
+								return true;
+
+
+						} 
+						negate *= -1;
 						currently_selected = false;
 						current_player = current_player*-1;	
 					}
 		
 
-				//current_player = current_player*-1; //switch players
+				
 			}
 
-		}
-		else {
-			return false;
+
+			}
+
+
+
 		}
 
-	} 
+
+	if (currently_selected && !pop_status) {
+
+		if ( chip_manager->is_chip(current_player, xpos, ypos) && (xpos != current[0] || ypos != current[1])) {
+				//use temp array here;
+				tempx = current[0];
+				tempy = current[1];
+
+				//Game::temp_cords[0] = xpos;
+				//Game::temp_cords[1] = ypos;
+				currently_selected = false;
+				if (!(Game::select_chip(xpos,ypos, current_cords)) ){
+					
+					currently_selected = true;
+				} else {
+					chip_manager->deselect(current_player,tempx,tempy);
+				}
+
+
+
+	} else {
+		return false;
+	}
+	}
+}
+
 
 	//chip_manager->is_king(current_player, current[0], current[1]) 
 	//Check if king
@@ -472,7 +526,7 @@ bool Game::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 		negate = -1;
 	}
 	*/
-}
+
 
 
 void Game::another_move(int xpos, int ypos, int*& current){

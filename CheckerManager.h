@@ -18,9 +18,11 @@ public:
 	bool is_chip(int type, int xpos, int ypos);
 	void make_trans(int type, int xpos, int ypos);
 	bool any_chip( int xpos, int ypos);
-	bool is_king(int type, int xpos, int ypos, bool currentKing);
+	bool is_king(int type, int xpos, int ypos);
 	void make_king(int type, int xpos, int ypos);
-
+	void enablePopup(bool enab);
+	bool getPopupStatus();
+	void deselect(int type, int xpos, int ypos);
 
 private:
 
@@ -49,7 +51,7 @@ private:
 	//Data keeping track of width and height
 	int objH;
 	int objW;
-
+	bool render_popup = false;
 
 	//Renderer to use
 	SDL_Renderer * renderer;
@@ -68,5 +70,8 @@ private:
 	SDL_Texture* objTexture_R_KING;
 	SDL_Texture* objTexture_B_KING_TRANS;
 	SDL_Texture* objTexture_R_KING_TRANS;
+
+	SDL_Texture* popup;
+	SDL_Rect srcRect_pop, destRect_pop;
 };
 

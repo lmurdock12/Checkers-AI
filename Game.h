@@ -46,7 +46,12 @@ public:
 	int direction;
 	bool isKing = false;
 	int negate = -1;
-
+	int jump_again = false;
+	//int render_popup = false;
+	bool pop_status = false;
+	int* temp_cords;
+	int tempx;
+	int tempy;
 	//Current Chip //probably will get moved
 	bool currently_selected;
 	int* current_cords;

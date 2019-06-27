@@ -45,12 +45,20 @@ CheckerManager::CheckerManager(const char* texturesheet_B, const char* texturesh
 
 	destRect_R.x = 0;
 	destRect_R.y = 0;
-	destRect_R.w = srcRect_B.w;
-	destRect_R.h = srcRect_B.h;
+	destRect_R.w = srcRect_R.w;
+	destRect_R.h = srcRect_R.h;
 
 
+	popup = TextureManager::LoadTexture("assets/continue.png", ren);
+	srcRect_pop.h = 200;
+	srcRect_pop.w = 400;
+	srcRect_pop.x = 0;
+	srcRect_pop.y = 0;
 
-
+	destRect_pop.x = 200;
+	destRect_pop.y = 200;
+	destRect_pop.h = srcRect_pop.h;
+	destRect_pop.w = srcRect_pop.w;
 
 
 
@@ -70,7 +78,7 @@ void CheckerManager::initBoard() {
 	for (int i = 0; i < 3; i++) { //rows 0,1,2
 		if (i % 2 == 1) {
 			for (int j = 0; j < 8; j += 2) {
-				checker_array[i][j] = GRID_TYPE_R;
+				checker_array[i][j] = GRID_TYPE_B_KING;
 				checker_array[i][j+1] = GRID_TYPE_NONE;
 
 			}
@@ -79,7 +87,7 @@ void CheckerManager::initBoard() {
 		}
 		else { //even row
 			for (int j = 1; j < 8; j += 2) {
-				checker_array[i][j] = GRID_TYPE_R;
+				checker_array[i][j] = GRID_TYPE_B_KING;
 				checker_array[i][j-1] = GRID_TYPE_NONE;
 			}
 		}
@@ -91,13 +99,13 @@ void CheckerManager::initBoard() {
 	for (int i = 5; i < 8; i++) { //row
 		if (i % 2 == 1) { //odd row
 			for (int j = 0; j< 8; j += 2) {//column
-				checker_array[i][j] = GRID_TYPE_B;
+				checker_array[i][j] = GRID_TYPE_R_KING;
 				checker_array[i][j+1] = GRID_TYPE_NONE;
 			}
 		}
 		else { //even row
 			for (int j = 1; j < 8; j += 2) {//column
-				checker_array[i][j] = GRID_TYPE_B;
+				checker_array[i][j] = GRID_TYPE_R_KING;
 				checker_array[i][j-1] = GRID_TYPE_NONE;
 			}
 		}
@@ -181,6 +189,27 @@ void CheckerManager::make_trans(int type, int xpos, int ypos) {
 }
 
 
+void CheckerManager::deselect(int type, int xpos, int ypos) {
+
+	if (type == GRID_TYPE_B) {
+		if (checker_array[ypos][xpos] == GRID_TYPE_B_KING_TRANS) {
+			checker_array[ypos][xpos] = GRID_TYPE_B_KING;
+		} else {
+		checker_array[ypos][xpos] = GRID_TYPE_B;
+		}
+	}
+	else if (type == GRID_TYPE_R){
+			if(checker_array[ypos][xpos] == GRID_TYPE_R_KING_TRANS) {
+				checker_array[ypos][xpos] = GRID_TYPE_R_KING;
+				
+			} else {
+
+				checker_array[ypos][xpos] = GRID_TYPE_R;	
+			}
+
+	}
+
+}
 
 
 
@@ -202,19 +231,16 @@ void CheckerManager::remove_chip(int type, int xpos, int ypos) {
 }
 
 
-
-
-
-
-
 bool CheckerManager::is_chip(int type, int xpos, int ypos) {
 
 	if (type == GRID_TYPE_B || type == GRID_TYPE_B_KING) {
-		if (checker_array[ypos][xpos] == GRID_TYPE_B || checker_array[ypos][xpos] == GRID_TYPE_B_KING)
+		if (checker_array[ypos][xpos] == GRID_TYPE_B || checker_array[ypos][xpos] == GRID_TYPE_B_KING ||
+			checker_array[ypos][xpos] == GRID_TYPE_B_TRANS || checker_array[ypos][xpos] == GRID_TYPE_B_KING_TRANS)
 			return true;
 	}
 	else if (type == GRID_TYPE_R || type == GRID_TYPE_R_KING) {
-		if (checker_array[ypos][xpos] == GRID_TYPE_R || checker_array[ypos][xpos] == GRID_TYPE_R_KING)
+		if (checker_array[ypos][xpos] == GRID_TYPE_R || checker_array[ypos][xpos] == GRID_TYPE_R_KING ||
+			checker_array[ypos][xpos] == GRID_TYPE_R_TRANS || checker_array[ypos][xpos] == GRID_TYPE_R_KING_TRANS)
 			return true;
 	}
 	return false;
@@ -229,6 +255,8 @@ bool CheckerManager::any_chip( int xpos, int ypos) {
 		//
 		if (checker_array[ypos][xpos] == GRID_TYPE_B || checker_array[ypos][xpos] == GRID_TYPE_R ||
 			checker_array[ypos][xpos] == GRID_TYPE_B_KING || checker_array[ypos][xpos] == GRID_TYPE_R_KING ||
+			checker_array[ypos][xpos] == GRID_TYPE_B_TRANS || checker_array[ypos][xpos] == GRID_TYPE_B_KING ||
+			checker_array[ypos][xpos] == GRID_TYPE_R_TRANS || checker_array[ypos][xpos] == GRID_TYPE_R_KING_TRANS ||
 			ypos < 0 || xpos < 0 || xpos > 7 || ypos > 7){
 
 			return true;
@@ -239,20 +267,20 @@ bool CheckerManager::any_chip( int xpos, int ypos) {
 }
 
 
-bool CheckerManager::is_king(int type, int xpos, int ypos, bool currentKing) {
+bool CheckerManager::is_king(int type, int xpos, int ypos) {
 	//std::cout << checker_array[ypos][xpos] << std::endl;
 	if (type == GRID_TYPE_B) {
-		if (checker_array[ypos][xpos] == GRID_TYPE_B_KING_TRANS) {
+		if (checker_array[ypos][xpos] == GRID_TYPE_B_KING) {
 
 			return true;
-		} else if (checker_array[ypos][xpos] == GRID_TYPE_B_KING_TRANS && currentKing)
+		} else if (checker_array[ypos][xpos] == GRID_TYPE_B_KING_TRANS)
 			return true;
 			
 
 	} else if (type == GRID_TYPE_R) {
-		if (checker_array[ypos][xpos] == GRID_TYPE_R_KING_TRANS) {
+		if (checker_array[ypos][xpos] == GRID_TYPE_R_KING) {
 				return true;
-		} else if (checker_array[ypos][xpos] == GRID_TYPE_R_KING_TRANS && currentKing)
+		} else if (checker_array[ypos][xpos] == GRID_TYPE_R_KING_TRANS)
 			return true;
 	} 
 	
@@ -270,6 +298,16 @@ void CheckerManager::make_king(int type, int xpos, int ypos) {
 	}
 
 
+}
+
+void CheckerManager::enablePopup(bool enab) {
+
+	render_popup = enab;
+
+}
+
+bool CheckerManager::getPopupStatus() {
+	return render_popup;
 }
 
 void CheckerManager::render() {
@@ -312,6 +350,9 @@ void CheckerManager::render() {
 				CheckerManager::update_checker(GRID_TYPE_B, j * 100, i * 100);
 				SDL_RenderCopy(renderer, objTexture_R_KING_TRANS,&srcRect_B, &destRect_B);
 
+			}
+			else if (render_popup) {
+				SDL_RenderCopy(renderer, popup, &srcRect_pop, &destRect_pop);
 			}
 
 
