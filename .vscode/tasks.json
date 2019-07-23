@@ -7,7 +7,7 @@
             "label": "checkers",
             "type": "shell",
             "command": "g++",
-            "args": [
+            /*"args": [
                 "-g",
                 "Main.cpp",
                 "Game.cpp",
@@ -17,6 +17,13 @@
                 "-w",
                 "-lSDL2",
                 "-lSDL2_image",
+                "-o",
+                "main"
+            ],*/
+            "args":[
+                "-g",
+                "AITest.cpp",
+                "AI.cpp",
                 "-o",
                 "main"
             ],
