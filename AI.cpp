@@ -53,9 +53,9 @@ void AI::initBoard() {
 
     current_cords = new int[2];
                 // Y, X????
-	//checker_array[5][4] = GRID_TYPE_B_KING;
+	checker_array.grid[4][1] = GRID_TYPE_R;
 	//checker_array[4][1] = GRID_TYPE_R_KING;
-
+	//checker_array{}
 
 }
 
@@ -65,7 +65,7 @@ int* AI::getCurrentCordsVar() {
 
 }
 
-void AI::getBoard(vector<Board>& boards) {
+void AI::getBoard() {
 
     std::cout << "################" << std::endl;
 
@@ -94,8 +94,14 @@ void AI::getBoard(vector<Board>& boards) {
 
     }
     std::cout << "################" << std::endl;
-	boards.push_back(checker_array);
 
+
+}
+
+void AI::addBoard(vector<Board>& boards) {
+
+	boards.push_back(checker_array);
+	//currently_selected = false; //e
 }
 
 bool AI::is_chip(int type, int xpos, int ypos) {
@@ -223,7 +229,9 @@ bool AI::select_chip(int xpos, int ypos, int*& current) {
 			//std::cout << "Left: " << chip_manager->any_chip(xpos-1,ypos+1) << std::endl;
 			//std::cout << "Right: " << chip_manager->any_chip(xpos+1,ypos+1) << std::endl;
 			//If the chip is along the left side of rails and there is not a move, then break out of function
+								//opposite color chip one spot to right
 			if (xpos==0 && ( ( is_chip(current_player*-1, xpos+1, ypos+(negate*current_player)) &&
+						//anychip covering hop spot								//same color chip on right
 					  any_chip(xpos+2, ypos+(2*negate*current_player))) || is_chip(current_player, xpos+1,ypos+(negate*current_player)) )	) {
 
 						return false;
@@ -286,7 +294,7 @@ bool AI::select_chip(int xpos, int ypos, int*& current) {
 			
 			else {
 
-                std::cout << "GOT A SELECTION" << std::endl;
+                //std::cout << "GOT A SELECTION" << std::endl;
 				//////make_trans(current_player, xpos, ypos);
 				currently_selected = true;
 				// possible create a seperate transparent function to make easier to read?
@@ -350,7 +358,7 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 
 				currently_selected = false;
-				current_player = current_player*-1;
+				//current_player = current_player*-1;
 				return false;
 
 		} else if (  xpos == current[0]+1 && ypos == current[1]+(negate*current_player) && !(is_chip(current_player, current[0]+1, current[1]+(negate*current_player)))
@@ -364,7 +372,7 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 
 						currently_selected = false;
-						current_player = current_player*-1;
+						//current_player = current_player*-1;
 						return false;
 
 		}
@@ -391,7 +399,7 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 				//Update the new current spot:
 				current[0] = xpos;
 				current[1] = ypos;
-
+				return false;
 				if ((select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords) ||
 					select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords)) ) {
 						//currently_selected = true;
@@ -401,7 +409,7 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 					}
 					else {
 						currently_selected = false;
-						current_player = current_player*-1;	
+						//current_player = current_player*-1;	
 					}
 				//current_player = current_player*-1; //switch players
 
@@ -426,7 +434,7 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 				current[0] = xpos;
 				current[1] = ypos;
 				//set the current chip location to the recently moved spot
-
+				return false;
 				if (select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords) ||
 					select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords))  {
 						//currently_selected = true;
@@ -449,7 +457,7 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 						} 
 						negate *= -1;
 						currently_selected = false;
-						current_player = current_player*-1;	
+						//current_player = current_player*-1;	
 					}
 		
 

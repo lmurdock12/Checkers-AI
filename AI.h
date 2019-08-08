@@ -3,9 +3,9 @@
 
 using std::vector;
 
-struct Board {
-	int grid[8][8];
-};
+//struct Board {
+	//int grid[8][8];
+//};
 
 class AI 
 {
@@ -13,11 +13,13 @@ class AI
 public:
 
 
-	//struct Board {
-    	//int grid[8][8];
-	//};
+	struct Board {
+    	int grid[8][8];
+	};
+	Board checker_array;
     void initBoard();
-    void getBoard(vector<Board>& boards);
+    void getBoard();
+	void addBoard(vector<AI::Board>& boards);
     bool select_chip(int xpos, int ypos, int*& current);
     bool is_chip(int type, int xpos, int ypos);
     bool any_chip( int xpos, int ypos);
@@ -31,7 +33,7 @@ public:
 
     int* getCurrentCordsVar();
 
-	Board checker_array;
+	//oard checker_array;
 
 private:
 
