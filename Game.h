@@ -55,6 +55,7 @@ public:
 	//Current Chip //probably will get moved
 	bool currently_selected;
 	int* current_cords;
+	bool concurrent;
 
 
 private:

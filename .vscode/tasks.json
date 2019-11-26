@@ -7,7 +7,7 @@
             "label": "checkers",
             "type": "shell",
             "command": "g++",
-            /*"args": [
+            "args": [
                 "-g",
                 "Main.cpp",
                 "Game.cpp",
@@ -19,14 +19,15 @@
                 "-lSDL2_image",
                 "-o",
                 "main"
-            ],*/
+            ],
+            /*
             "args":[
                 "-g",
                 "AITest.cpp",
                 "AI.cpp",
                 "-o",
                 "main"
-            ],
+            ],*/
             "group": {
                 "kind": "build",
                 "isDefault": true

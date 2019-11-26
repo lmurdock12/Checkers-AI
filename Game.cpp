@@ -52,7 +52,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 										"assets/blue_king.png","assets/red_king.png","assets/blue_king_trans.png", "assets/red_king_trans.png",renderer, 100, 100, GRID_TYPE_B);
 	current_player = GRID_TYPE_B;
 	current_cords = new int[2];
-	direction = 1;
+	concurrent = false;
 }
 
 void Game::handleEvents() {
@@ -82,6 +82,7 @@ void Game::handleEvents() {
 
 							chip_manager->enablePopup(false);
 							currently_selected = true;
+							concurrent = true;
 					} else if (x>=400 && x<=1200 && y>=600 && y<=800){
 							//switch player
 							chip_manager->enablePopup(false);
@@ -358,7 +359,7 @@ bool Game::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 		//If left diagonal is selected and there is no red or blue chip located there then move the chip
 		//maybe refractor and add a no_chip function instead of calling is_chip twice?						//replace this with any chip
 		if (  xpos == current[0]-1 && ypos == current[1]+(negate*current_player) && !chip_manager->is_chip(current_player, current[0]-1, current[1]+(negate*current_player) )
-			&& !chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)) ) {   
+			&& !chip_manager->is_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)) && !concurrent) {   
 
 				//std::cout << "Current Player:" << current_player << std::endl;
 				//std::cout << "Blue Chip: " << !(chip_manager->is_chip(current_player, current[0]-1, current[1]+(-1*current_player))) << std::endl;
@@ -379,7 +380,7 @@ bool Game::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 				return false;
 
 		} else if (  xpos == current[0]+1 && ypos == current[1]+(negate*current_player) && !(chip_manager->is_chip(current_player, current[0]+1, current[1]+(negate*current_player)))
-					&& !(chip_manager->is_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player))) ) {
+					&& !(chip_manager->is_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player))) && !concurrent) {
 
 						chip_manager->move_chip(current_player, xpos, ypos, current[0], current[1], isKing); //move chip to new location
 						chip_manager->remove_chip(current_player, current[0], current[1]); //remove the old chip
@@ -416,18 +417,42 @@ bool Game::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 				//Update the new current spot:
 				current[0] = xpos;
 				current[1] = ypos;
+				
+				isKing = chip_manager->is_king(current_player,current_cords[0], current_cords[1]);
 
-				if ((Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords) ||
-					Game::select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords)) ) {
+				//Refractor the right diagonal (else) code to be like this for checking double hop
+				if ( (Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords) ||
+					Game::select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords)) ){
+					//(Game::select_chip(current_cords[0]+2,current_cords[1]+(2*negate*-1*current_player), current_cords)	||
+						//Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*-1*current_player), current_cords)) ) {
 						//currently_selected = true;
 						//render_popup = true;
 						chip_manager->enablePopup(true);
 						return true;
+
+
+
 					}
-					else {
-						currently_selected = false;
-						current_player = current_player*-1;	
+					else if (isKing) {
+
+
+						negate *= -1;
+						if ((Game::select_chip(current_cords[0]-2, current_cords[1]+(2*negate*current_player),current_cords) ||
+						Game::select_chip(current_cords[0]+2, current_cords[1]+(2*negate*current_player),current_cords))) {
+								
+								negate *= -1;
+								chip_manager->enablePopup(true);
+								return true;
+
+
+						} 
+						negate *= -1;
+
 					}
+				currently_selected = false;
+				current_player = current_player*-1;
+				concurrent = false;
+
 				//current_player = current_player*-1; //switch players
 
 
@@ -451,15 +476,16 @@ bool Game::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 				current[0] = xpos;
 				current[1] = ypos;
 				//set the current chip location to the recently moved spot
+				isKing = chip_manager->is_king(current_player,current_cords[0], current_cords[1]);
 
-				if (Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords) ||
+					if (Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords) ||
 					Game::select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords))  {
 						//currently_selected = true;
 						chip_manager->enablePopup(true);
 						return true;
 						
 					}
-					else {
+					else if (isKing) {
 						//Try negating the player to try the two other current possibilities
 						
 						negate *= -1;
@@ -473,9 +499,10 @@ bool Game::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 						} 
 						negate *= -1;
-						currently_selected = false;
-						current_player = current_player*-1;	
 					}
+					currently_selected = false;
+					current_player = current_player*-1;
+					concurrent = false;	
 		
 
 				
@@ -488,8 +515,9 @@ bool Game::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 		}
 
-
-	if (currently_selected && !pop_status) {
+	//If a chip is currently selected and the double hop prompt is not displayed or no double hop is currently
+	//going on then see if the chip selected is potentially a different valid move
+	if (currently_selected && !pop_status && !concurrent) {
 
 		if ( chip_manager->is_chip(current_player, xpos, ypos) && (xpos != current[0] || ypos != current[1])) {
 				//use temp array here;
