@@ -74,7 +74,7 @@ void AI::getChildren() {
             current = getCurrentCordsVar(); //Get the current value of 
             bool foundMove = false;
 
-
+			checker_array = original_board;
             //aiTest->getBoard();
             //See if current cords is a selectable chip
             if(select_chip(j,i,current)) {
@@ -83,47 +83,109 @@ void AI::getChildren() {
                 //Get the current cords of selected chip
                 //current = aiTest->getCurrentCordsVar();
                 //if valid move was made print the updated board
-                if(!validate_move(current[0]-1,current[1]+(negate*current_player),current,false)) {
+				isKing = is_king(current_player,j,i);
+
+                if(!validate_move(current[0]-1,current[1]+(negate*current_player),current,isKing)) {
 
                     //std::cout << "got move" << std::endl;
 					children.push_back(checker_array);
                     //getBoard();
                     checker_array = original_board;
+					make_trans(current_player,j,i);
                     set_currently_selected(true);
                     foundMove = true;
 
                 }
                 //std::cout << "current board is: " <<std::endl;
                 //aiTest->getBoard(boards);
-                if (!validate_move(current[0]+1,current[1]+(negate*current_player),current,false)) {
+                if (!validate_move(current[0]+1,current[1]+(negate*current_player),current,isKing)) {
                     //std::cout << "got move" << std::endl;
                     children.push_back(checker_array);
                     //getBoard();
                     checker_array = original_board;
+					make_trans(current_player,j,i);
                     set_currently_selected(true);
                     foundMove = true;
 
                 } 
-                if(!validate_move(current[0]-2,current[1]+(negate*current_player*2),current,false)) {
+                if(!validate_move(current[0]-2,current[1]+(negate*current_player*2),current,isKing)) {
 
                     //std::cout << "got move" << std::endl;
                     children.push_back(checker_array);
                     //getBoard();
                     checker_array = original_board;
+					make_trans(current_player,j,i);
                     set_currently_selected(true);
                     foundMove = true;
 
                 }
-                if(!validate_move(current[0]+2,current[1]+(negate*current_player*2),current,false)) {
+                if(!validate_move(current[0]+2,current[1]+(negate*current_player*2),current,isKing)) {
                     //std::cout << "got move" << std::endl;
                     children.push_back(checker_array);
                     //getBoard();
                     checker_array = original_board;
+					make_trans(current_player,j,i);
                     set_currently_selected(true);
                     foundMove = true;
 
 
                 }
+
+
+				if(isKing) {
+
+					negate *= -1;
+					if(!validate_move(current[0]-1,current[1]+(negate*current_player),current,isKing)) {
+
+						//std::cout << "got move" << std::endl;
+						children.push_back(checker_array);
+						//getBoard();
+						checker_array = original_board;
+						make_trans(current_player,j,i);
+						set_currently_selected(true);
+						foundMove = true;
+
+					}
+					//std::cout << "current board is: " <<std::endl;
+					//aiTest->getBoard(boards);
+					if (!validate_move(current[0]+1,current[1]+(negate*current_player),current,isKing)) {
+						//std::cout << "got move" << std::endl;
+						children.push_back(checker_array);
+						//getBoard();
+						checker_array = original_board;
+						make_trans(current_player,j,i);
+						set_currently_selected(true);
+						foundMove = true;
+
+					} 
+					if(!validate_move(current[0]-2,current[1]+(negate*current_player*2),current,isKing)) {
+
+						//std::cout << "got move" << std::endl;
+						children.push_back(checker_array);
+						//getBoard();
+						checker_array = original_board;
+						make_trans(current_player,j,i);
+						set_currently_selected(true);
+						foundMove = true;
+
+					}
+					if(!validate_move(current[0]+2,current[1]+(negate*current_player*2),current,isKing)) {
+						//std::cout << "got move" << std::endl;
+						children.push_back(checker_array);
+						//getBoard();
+						checker_array = original_board;
+						make_trans(current_player,j,i);
+						set_currently_selected(true);
+						foundMove = true;
+
+					}
+					negate *= -1;
+
+
+
+				}
+
+
                 if (foundMove == false) {
                     std::cout << "did not find move" << std::endl;
                 }
@@ -451,6 +513,7 @@ bool AI::select_chip(int xpos, int ypos, int*& current) {
 
                 //std::cout << "GOT A SELECTION" << std::endl;
 				//////make_trans(current_player, xpos, ypos);
+				make_trans(current_player, xpos, ypos);
 				currently_selected = true;
 				// possible create a seperate transparent function to make easier to read?
 				//put move chip function here
@@ -620,5 +683,27 @@ void AI::make_king(int type, int xpos, int ypos) {
 		checker_array.grid[ypos][xpos] = GRID_TYPE_R_KING;
 	}
 
+
+}
+
+void AI::make_trans(int type, int xpos, int ypos) {
+
+	if (type == GRID_TYPE_B) {
+		if (checker_array.grid[ypos][xpos] == GRID_TYPE_B_KING) {
+			checker_array.grid[ypos][xpos] = GRID_TYPE_B_KING_TRANS;
+		} else {
+		checker_array.grid[ypos][xpos] = GRID_TYPE_B_TRANS;
+		}
+	}
+	else if (type == GRID_TYPE_R){
+			if(checker_array.grid[ypos][xpos] == GRID_TYPE_R_KING) {
+				checker_array.grid[ypos][xpos] = GRID_TYPE_R_KING_TRANS;
+				
+			} else {
+
+				checker_array.grid[ypos][xpos] = GRID_TYPE_R_TRANS;	
+			}
+
+	}
 
 }

@@ -33,7 +33,7 @@ vector<int> minimax(AI::Board currentBoard, int depth, bool maximizingPlayer) {
         currPosition = new AI(1,true,-1, currentBoard);
         int maxEval = -1000000;
         int maxPos = -1;
-		std::cout << "curr: " << currPosition->current_player << std::endl;
+		//std::cout << "curr: " << currPosition->current_player << std::endl;
         for(int i=0; i<currPosition->children.size();i++) {
             int eval = minimax(currPosition->children[i], depth-1, false)[0];
             maxEval = std::max(maxEval, eval);
@@ -204,7 +204,7 @@ void Game::handleEvents() {
 					}
 
 					std::cout << successfulMove << std::endl;
-					if(successfulMove) {
+					if(successfulMove && !currently_selected) {
 						std::cout << "got a successful move#####" << std::endl;
 						successfulMove = false;
 
@@ -227,8 +227,9 @@ void Game::handleEvents() {
 						aiTest->checker_array = aiTest->original_board;
 						aiTest->current_player = -1;
 						aiTest->getChildren();
-						//int size = aiTest->children.size();
-						//std::cout << size << std::endl;
+						int size = aiTest->children.size();
+						std::cout << "possible moves: " << size << std::endl;
+						std::cout << "move index: " << move_index << std::endl;
 
 						aiTest->getBoard(aiTest->children[move_index]);
 						

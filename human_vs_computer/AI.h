@@ -35,6 +35,7 @@ public:
     void move_chip(int type, int xpos, int ypos,int old_x, int old_y, bool& isKing);
     void remove_chip(int type, int xpos, int ypos);
     void make_king(int type, int xpos, int ypos);
+	void make_trans(int type, int xpos, int ypos);
 
 	int getScore(AI::Board board);
 
