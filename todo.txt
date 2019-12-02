@@ -22,3 +22,8 @@ if currently selected:
 		call validate move logic
 	else:
 		regular validate move logic
+
+
+
+
+fix asset paths so I can stop having to have assets in every version of the game
