@@ -4,6 +4,148 @@
 
 using std::vector;
 
+
+
+
+
+
+AI::AI(int depth, bool player_turn, int currPlayer, AI::Board check_arr) {
+	curr_depth = depth;
+	player = player_turn;
+
+	original_board = check_arr;
+	checker_array = original_board;
+
+	current_player = currPlayer;
+	
+	getChildren();
+}
+
+AI::AI(int depth, bool player) {
+	curr_depth = depth;
+	player = player;
+
+}
+
+int AI::getScore(AI::Board board) {
+
+	int B_count = 0;
+	int R_count = 0;
+
+    for (int i=0; i<8;i++) { //Loop through rows
+        for (int j=0; j<8; j++) { //Loop through columns
+            if (board.grid[i][j] == GRID_TYPE_B) {
+                B_count += 1;
+            }
+            if (board.grid[i][j] == GRID_TYPE_R) {
+                R_count += 1;
+            }
+            if (board.grid[i][j] == GRID_TYPE_B_KING) {
+                B_count += 1;
+            }
+            if (board.grid[i][j] == GRID_TYPE_R_KING) {
+                R_count += 1;
+            }
+        }
+    }
+
+	return R_count - B_count;
+}
+
+
+void AI::getChildren() {
+
+    
+    //std::cout << "Main file test" << std::endl;
+
+    //aiTest->getBoard(boards);
+
+    int* current;
+    //aiTest->get_current(current);
+
+    //std::cout << "Original board: " << std::endl;
+    //getBoard();
+
+    for(int i=0; i<8; i++) {
+            //std::cout << "next row" << std::endl;
+        for(int j=0; j<8; j++) {
+            //std::cout << "next column" << std::endl;
+            set_currently_selected(false);
+            current = getCurrentCordsVar(); //Get the current value of 
+            bool foundMove = false;
+
+
+            //aiTest->getBoard();
+            //See if current cords is a selectable chip
+            if(select_chip(j,i,current)) {
+
+                std::cout << "got selection X: " << j << ", Y: " << i << std::endl;
+                //Get the current cords of selected chip
+                //current = aiTest->getCurrentCordsVar();
+                //if valid move was made print the updated board
+                if(!validate_move(current[0]-1,current[1]+(negate*current_player),current,false)) {
+
+                    //std::cout << "got move" << std::endl;
+					children.push_back(checker_array);
+                    //getBoard();
+                    checker_array = original_board;
+                    set_currently_selected(true);
+                    foundMove = true;
+
+                }
+                //std::cout << "current board is: " <<std::endl;
+                //aiTest->getBoard(boards);
+                if (!validate_move(current[0]+1,current[1]+(negate*current_player),current,false)) {
+                    //std::cout << "got move" << std::endl;
+                    children.push_back(checker_array);
+                    //getBoard();
+                    checker_array = original_board;
+                    set_currently_selected(true);
+                    foundMove = true;
+
+                } 
+                if(!validate_move(current[0]-2,current[1]+(negate*current_player*2),current,false)) {
+
+                    //std::cout << "got move" << std::endl;
+                    children.push_back(checker_array);
+                    //getBoard();
+                    checker_array = original_board;
+                    set_currently_selected(true);
+                    foundMove = true;
+
+                }
+                if(!validate_move(current[0]+2,current[1]+(negate*current_player*2),current,false)) {
+                    //std::cout << "got move" << std::endl;
+                    children.push_back(checker_array);
+                    //getBoard();
+                    checker_array = original_board;
+                    set_currently_selected(true);
+                    foundMove = true;
+
+
+                }
+                if (foundMove == false) {
+                    std::cout << "did not find move" << std::endl;
+                }
+                set_currently_selected(false);
+
+            }
+
+            //If a chip was selected check the following to see if a valid move.
+                //simple left, right
+                //hop left, right
+
+            //loop through new boards and see if that board is in the list
+            //if not in the list then add the board to the list.
+            
+        }
+
+    }	
+
+	//std::cout << children.size() << std::endl;
+
+}
+
 void AI::initBoard() {
 
 	for (int i = 0; i < 3; i++) { //rows 0,1,2
@@ -50,13 +192,28 @@ void AI::initBoard() {
 
 
 	}
+	checker_array.grid[1][0] = GRID_TYPE_NONE;
+	checker_array.grid[2][7] = GRID_TYPE_NONE;
+	checker_array.grid[3][0] = GRID_TYPE_R;
+	checker_array.grid[3][6] = GRID_TYPE_R;
+	checker_array.grid[4][1] = GRID_TYPE_B;
+	checker_array.grid[4][3] = GRID_TYPE_B;
+	checker_array.grid[4][5] = GRID_TYPE_B;
+	checker_array.grid[5][2] = GRID_TYPE_NONE;
+	checker_array.grid[5][6] = GRID_TYPE_NONE;
+	checker_array.grid[6][5] = GRID_TYPE_NONE;
 
-    current_cords = new int[2];
+
+    //current_cords = new int[2];
                 // Y, X????
-	checker_array.grid[4][1] = GRID_TYPE_R;
+	//checker_array.grid[4][1] = GRID_TYPE_R;
 	//checker_array[4][1] = GRID_TYPE_R_KING;
 	//checker_array{}
 
+}
+
+AI::Board AI::returnBoard() {
+	return checker_array;
 }
 
 int* AI::getCurrentCordsVar() {
@@ -65,7 +222,7 @@ int* AI::getCurrentCordsVar() {
 
 }
 
-void AI::getBoard() {
+void AI::getBoard(AI::Board board) {
 
     std::cout << "################" << std::endl;
 
@@ -73,19 +230,19 @@ void AI::getBoard() {
 
         for (int j=0; j<8; j++) { //Loop through columns
 
-            if (checker_array.grid[i][j] == GRID_TYPE_NONE) {
+            if (board.grid[i][j] == GRID_TYPE_NONE) {
                 std::cout << "_";
             }
-            if (checker_array.grid[i][j] == GRID_TYPE_B) {
+            if (board.grid[i][j] == GRID_TYPE_B) {
                 std::cout << "B";
             }
-            if (checker_array.grid[i][j] == GRID_TYPE_R) {
+            if (board.grid[i][j] == GRID_TYPE_R) {
                 std::cout << "R";
             }
-            if (checker_array.grid[i][j] == GRID_TYPE_B_KING) {
+            if (board.grid[i][j] == GRID_TYPE_B_KING) {
                 std::cout << "K";
             }
-            if (checker_array.grid[i][j] == GRID_TYPE_R_KING) {
+            if (board.grid[i][j] == GRID_TYPE_R_KING) {
                 std::cout << "K";
             }
             std::cout << " ";
@@ -98,11 +255,7 @@ void AI::getBoard() {
 
 }
 
-void AI::addBoard(vector<Board>& boards) {
 
-	boards.push_back(checker_array);
-	//currently_selected = false; //e
-}
 
 bool AI::is_chip(int type, int xpos, int ypos) {
 
@@ -173,7 +326,6 @@ void AI::set_currently_selected(bool var) {
 
 }
 
-
 bool AI::select_chip(int xpos, int ypos, int*& current) {
 
 
@@ -222,7 +374,10 @@ bool AI::select_chip(int xpos, int ypos, int*& current) {
 	//if player selected a valid chip, get the coords and set currently_selected to true
 	 else if (is_chip(current_player, xpos, ypos) && currently_selected == false) {
 
-
+			 /*
+		 	if (is_chip(current_player,xpos,ypos)) {
+				 std::cout << "Current player chip of type: " << current_player << ", X: " << xpos << ", Y: " << ypos << std::endl;
+			 }*/
 			//check to see if the chip is a king
 				//set kingvar true if it is
 
@@ -332,11 +487,8 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 	// this should all be refractored into differenct functions based on the type of move the validator is checking
 
 	//Determine if the new spot is a valid move
-	if (currently_selected)  { // && (current_player == GRID_TYPE_B)) {
+	if (currently_selected && xpos < 8  && xpos >=0 && ypos < 8 and ypos >= 0)  { // && (current_player == GRID_TYPE_B)) {
 
-
-
-		
 		//Logic for basic nontakeover left move
 		//If left diagonal is selected and there is no red or blue chip located there then move the chip
 		//maybe refractor and add a no_chip function instead of calling is_chip twice?						//replace this with any chip
@@ -395,23 +547,8 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 				//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
 				make_king(current_player,xpos,ypos);
-
-				//Update the new current spot:
-				current[0] = xpos;
-				current[1] = ypos;
+				currently_selected = false;
 				return false;
-				if ((select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords) ||
-					select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords)) ) {
-						//currently_selected = true;
-						//render_popup = true;
-						////enablePopup(true);
-						return true;
-					}
-					else {
-						currently_selected = false;
-						//current_player = current_player*-1;	
-					}
-				//current_player = current_player*-1; //switch players
 
 
 														//opposite chip color one spot to right
@@ -426,76 +563,11 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 				//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
 				make_king(current_player,xpos,ypos);
-
-
-
-
-				//Update the new current spot:
-				current[0] = xpos;
-				current[1] = ypos;
-				//set the current chip location to the recently moved spot
-				return false;
-				if (select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords) ||
-					select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords))  {
-						//currently_selected = true;
-						////enablePopup(true);
-						return true;
-						
-					}
-					else {
-						//Try negating the player to try the two other current possibilities
-						
-						negate *= -1;
-						if ((select_chip(current_cords[0]-2, current_cords[1]+(2*negate*current_player),current_cords) ||
-						select_chip(current_cords[0]+2, current_cords[1]+(2*negate*current_player),current_cords))) {
-								
-								negate *= -1;
-								////enablePopup(true);
-								return true;
-
-
-						} 
-						negate *= -1;
-						currently_selected = false;
-						//current_player = current_player*-1;	
-					}
-		
-
-				
-			}
-
-
-			}
-
-
-
-		}
-
-    /* 
-	if (currently_selected && !pop_status) {
-
-		if ( is_chip(current_player, xpos, ypos) && (xpos != current[0] || ypos != current[1])) {
-				//use temp array here;
-				tempx = current[0];
-				tempy = current[1];
-
-				//Game::temp_cords[0] = xpos;
-				//Game::temp_cords[1] = ypos;
 				currently_selected = false;
-				if (!(select_chip(xpos,ypos, current_cords)) ){
-					
-					currently_selected = true;
-				} else {
-					////deselect(current_player,tempx,tempy);
-				}
-
-
-
-        } else {
-            return false;
-        }
-    }*/
-
+				return false;
+			}
+		}
+	}
     return true;
 }
 

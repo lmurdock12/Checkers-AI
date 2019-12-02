@@ -1,148 +1,99 @@
 
 #include "AI.h"
-#include "Game.h"
+
 #include <iostream>
 #include <vector>
-AI *aiTest = nullptr;
+
 
 using std::vector;
-
-class Node {
-
-public:
-	struct Board {
-    	int grid[8][8];
-	};
-    Node(int depth, int player, Board check_arr);
-private:
-
-	Board checker_array;
-
-    int curr_depth;
-    int player;
-    vector<Node> children;
+using std::cout;
+using std::endl;
 
 
+int minimax(AI::Board currentBoard, int depth, bool maximizingPlayer) {
+    AI* currPosition;
+    if (depth == 0) {
+        currPosition = new AI(1,true,-1,currentBoard);
+        int score = currPosition->getScore(currPosition->original_board);
+        return score; //static evaluation here
+    }
+    
+    if (maximizingPlayer) {
+        //set curr player to -1 for reds children
+        currPosition = new AI(1,true,-1, currentBoard);
+        int maxEval = -1000000;
+        int maxPos = -1;
+        for(int i=0; i<currPosition->children.size();i++) {
+            int eval = minimax(currPosition->children[i], depth-1, false);
+            maxEval = std::max(maxEval, eval);
+            if (maxEval == eval) {
+                maxPos = i;
+            }
+        }
+        cout << "maxpos: " << maxPos << endl;
+        currPosition->getBoard(currPosition->children[maxPos]);
+        return maxEval;
+        
+    } else {
 
-};
+        int minEval = 10000000;
+        currPosition = new AI(1,false,1,currentBoard); //Set currPlayer to 1 to get Blues children
+        
+        for(int i=0; i<currPosition->children.size();i++) {
+            int eval = minimax(currPosition->children[i], depth-1, true);
+            minEval = std::min(minEval, eval);
+        }
+        return minEval;
+    }
 
- Node::Node(int depth, int player, Board check_arr) {
 
-     curr_depth = depth;
-     player = player;
-     //checker_array = checker_array;
 
 }
+
 
 int main() {
 
 
-    Node::Board test;
-    test.grid[0][0] = 1;
 
-    Node *x = nullptr;
-    x = new Node(5,5, test);
+
+    //Initialize an AI test object because I am lazy and don't feel like copying the init code from AI class over
+    //This initializes a board and copys the starting positions over to a 2D array named initial
+    
+    AI* aiTest = new AI(3,true);
+    aiTest->initBoard();
+    aiTest->original_board = aiTest->checker_array;
+
+
+    aiTest->getBoard(aiTest->original_board);
+    int result = minimax(aiTest->original_board,3,true);
+    aiTest->getChildren();
+
+    /*
+    for (int i=0; i<aiTest->children.size(); i++) {
+        AI::Board test =  aiTest->children[i];
+        //aiTest->getBoard(test);
+        cout << aiTest->getScore(test) << endl;
+    } */
+
+    cout << "Possible moves: " << aiTest->children.size() << endl;
+    cout << "Minimax score is: " << result << endl; 
 
 
 
     
-    /* 
+
+
+
+
+
+
+
+
+
+
+    
    //###################################################
 
-    //std::cout << "Main file test" << std::endl;
-    aiTest = new AI(); //Create AI instance
-
-    vector<AI::Board> boards;
-
-    aiTest->initBoard();
-    //aiTest->getBoard(boards);
-
-    int* current;
-    //aiTest->get_current(current);
-
-    std::cout << "Original board: " << std::endl;
-    aiTest->getBoard();
-
-    for(int i=0; i<8; i++) {
-            std::cout << "next row" << std::endl;
-        for(int j=0; j<8; j++) {
-            std::cout << "next column" << std::endl;
-            aiTest->set_currently_selected(false);
-            current = aiTest->getCurrentCordsVar(); //Get the current value of 
-            bool foundMove = false;
-
-            //aiTest->getBoard();
-            aiTest->initBoard();
-            //aiTest->getBoard();
-            //See if current cords is a selectable chip
-            if(aiTest->select_chip(j,i,current)) {
-                std::cout << "got selection" << std::endl;
-                //Get the current cords of selected chip
-                //current = aiTest->getCurrentCordsVar();
-                //if valid move was made print the updated board
-                if(!aiTest->validate_move(current[0]-1,current[1]-1,current,false)) {
-
-                    std::cout << "got move" << std::endl;
-                    aiTest->addBoard(boards);
-                    aiTest->getBoard();
-                    aiTest->initBoard();
-                    aiTest->set_currently_selected(true);
-                    foundMove = true;
-
-                }
-                //std::cout << "current board is: " <<std::endl;
-                //aiTest->getBoard(boards);
-                if (!aiTest->validate_move(current[0]+1,current[1]-1,current,false)) {
-                    std::cout << "got move" << std::endl;
-                    aiTest->addBoard(boards);
-                    aiTest->getBoard();
-                    aiTest->initBoard();
-                    aiTest->set_currently_selected(true);
-                    foundMove = true;
-
-                } 
-                if(!aiTest->validate_move(current[0]-2,current[1]-2,current,false)) {
-
-                    std::cout << "got move" << std::endl;
-                    aiTest->addBoard(boards);
-                    aiTest->getBoard();
-                    aiTest->initBoard();
-                    aiTest->set_currently_selected(true);
-                    foundMove = true;
-
-                }
-                if(!aiTest->validate_move(current[0]+2,current[1]-2,current,false)) {
-                    std::cout << "got move" << std::endl;
-                    aiTest->addBoard(boards);
-                    aiTest->getBoard();
-                    aiTest->initBoard();
-                    aiTest->set_currently_selected(true);
-                    foundMove = true;
-
-
-                }
-                if (foundMove == true) {
-                    std::cout << "did not find move" << std::endl;
-                }
-                aiTest->set_currently_selected(false);
-
-            }
-
-            //If a chip was selected check the following to see if a valid move.
-                //simple left, right
-                //hop left, right
-
-            //loop through new boards and see if that board is in the list
-            //if not in the list then add the board to the list.
-
-            
-            
-        }
-
-    }
-
-    std::cout << "size of boards:" << boards.size() << std::endl;
-    */
 
 
 }
