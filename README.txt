@@ -24,3 +24,10 @@ g++ Main.cpp Game.cpp CheckerManager.cpp GameObject.cpp TextureManager.cpp -w -l
 Update make file to work.
 
 git reset --hard 0d1d7fc32
+
+//Rename branch
+git branch -m new-name
+
+//Delete branchg
+git branch -d branch_name
+git branch -D branch_name
