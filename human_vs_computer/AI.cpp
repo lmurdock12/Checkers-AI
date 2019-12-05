@@ -257,6 +257,7 @@ void AI::initBoard() {
 	
 	checker_array.grid[3][2] = GRID_TYPE_B;
 	checker_array.grid[5][4] = GRID_TYPE_B;
+	checker_array.grid[2][1] = GRID_TYPE_R_KING;
 	/*
 	checker_array.grid[3][0] = GRID_TYPE_R;
 	checker_array.grid[3][6] = GRID_TYPE_R;
@@ -632,72 +633,7 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 				current[0] = xpos;
 				current[1] = ypos;
 
-				bool tempKing = is_king(current_player,current_cords[0], current_cords[1]);
-
-				//Refractor the right diagonal (else) code to be like this for checking double hop
-				if ( (select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords))) {
-
-
-					move_chip(current_player, current_cords[0]-2, current_cords[1]+(2*negate*current_player), current[0], current[1], tempKing); //move the chip
-					remove_chip(current_player, current[0], current[1]); //remove the old chip
-					remove_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)); //remove opponents chip
-					make_king(current_player,xpos,ypos);		
-
-					children.push_back(checker_array);
-					checker_array = tempBoard;
-
-
-
-
-				}
-				if (select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords)) {
-					//(Game::select_chip(current_cords[0]+2,current_cords[1]+(2*negate*-1*current_player), current_cords)	||
-						//Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*-1*current_player), current_cords)) ) {
-						//currently_selected = true;
-						//render_popup = true;
-
-						move_chip(current_player, current_cords[0]+2, current_cords[1]+(2*negate*current_player), current[0], current[1], isKing); //move the chip
-						remove_chip(current_player, current[0], current[1]); //remove the old chip
-						remove_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player)); //remove opponents chip
-
-						//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
-						make_king(current_player,xpos,ypos);
-
-						children.push_back(checker_array);
-						checker_array = tempBoard;
-
-					}
-				if (isKing) {
-
-						negate *= -1;
-						if ((select_chip(current_cords[0]-2, current_cords[1]+(2*negate*current_player),current_cords))) {
-
-
-							move_chip(current_player, current_cords[0]-2, current_cords[1]+(2*negate*current_player), current[0], current[1], tempKing); //move the chip
-							remove_chip(current_player, current[0], current[1]); //remove the old chip
-							remove_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)); //remove opponents chip
-							make_king(current_player,xpos,ypos);		
-
-							children.push_back(checker_array);
-							checker_array = tempBoard;
-
-						}
-						if (select_chip(current_cords[0]+2, current_cords[1]+(2*negate*current_player),current_cords)) {
-							
-							move_chip(current_player, current_cords[0]+2, current_cords[1]+(2*negate*current_player), current[0], current[1], isKing); //move the chip
-							remove_chip(current_player, current[0], current[1]); //remove the old chip
-							remove_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player)); //remove opponents chip
-
-							//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
-							make_king(current_player,xpos,ypos);
-
-							children.push_back(checker_array);
-							checker_array = tempBoard;
-
-						} 
-						negate *= -1;
-
-					}
+				sequentialHops(current_cords);
 
 				checker_array = tempBoard;
 				current[0] = tempX;
@@ -728,72 +664,7 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 				current[0] = xpos;
 				current[1] = ypos;
 
-				bool tempKing = is_king(current_player,current_cords[0], current_cords[1]);
-
-				//Refractor the right diagonal (else) code to be like this for checking double hop
-				if ( (select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords))) {
-
-
-					move_chip(current_player, current_cords[0]-2, current_cords[1]+(2*negate*current_player), current[0], current[1], tempKing); //move the chip
-					remove_chip(current_player, current[0], current[1]); //remove the old chip
-					remove_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)); //remove opponents chip
-					make_king(current_player,xpos,ypos);		
-
-					children.push_back(checker_array);
-					checker_array = tempBoard;
-
-
-
-
-				}
-				if (select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords)) {
-					//(Game::select_chip(current_cords[0]+2,current_cords[1]+(2*negate*-1*current_player), current_cords)	||
-						//Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*-1*current_player), current_cords)) ) {
-						//currently_selected = true;
-						//render_popup = true;
-
-						move_chip(current_player, current_cords[0]+2, current_cords[1]+(2*negate*current_player), current[0], current[1], isKing); //move the chip
-						remove_chip(current_player, current[0], current[1]); //remove the old chip
-						remove_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player)); //remove opponents chip
-
-						//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
-						make_king(current_player,xpos,ypos);
-
-						children.push_back(checker_array);
-						checker_array = tempBoard;
-
-					}
-				if (isKing) {
-
-						negate *= -1;
-						if ((select_chip(current_cords[0]-2, current_cords[1]+(2*negate*current_player),current_cords))) {
-
-
-							move_chip(current_player, current_cords[0]-2, current_cords[1]+(2*negate*current_player), current[0], current[1], tempKing); //move the chip
-							remove_chip(current_player, current[0], current[1]); //remove the old chip
-							remove_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)); //remove opponents chip
-							make_king(current_player,xpos,ypos);		
-
-							children.push_back(checker_array);
-							checker_array = tempBoard;
-
-						}
-						if (select_chip(current_cords[0]+2, current_cords[1]+(2*negate*current_player),current_cords)) {
-							
-							move_chip(current_player, current_cords[0]+2, current_cords[1]+(2*negate*current_player), current[0], current[1], isKing); //move the chip
-							remove_chip(current_player, current[0], current[1]); //remove the old chip
-							remove_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player)); //remove opponents chip
-
-							//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
-							make_king(current_player,xpos,ypos);
-
-							children.push_back(checker_array);
-							checker_array = tempBoard;
-							
-						} 
-						negate *= -1;
-
-					}
+				sequentialHops(current_cords);
 
 				checker_array = tempBoard;
 				current[0] = tempX;
@@ -813,6 +684,136 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 	}
     return true;
 }
+
+
+
+
+bool AI::sequentialHops(int*& current) {
+
+	AI::Board tempBoard;
+	int tempX = current[0];
+	int tempY = current[1];
+
+	bool tempKing = is_king(current_player,current_cords[0], current_cords[1]);
+
+	//Refractor the right diagonal (else) code to be like this for checking double hop
+	if ( (select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords))) {
+
+
+		move_chip(current_player, current_cords[0]-2, current_cords[1]+(2*negate*current_player), current[0], current[1], tempKing); //move the chip
+		remove_chip(current_player, current[0], current[1]); //remove the old chip
+		remove_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)); //remove opponents chip
+		make_king(current_player,current_cords[0]-2,current_cords[1]+(2*negate*current_player));		
+		children.push_back(checker_array);
+
+
+
+		current[0] = current_cords[0]-2;
+		current[1] = current_cords[1]+(2*negate*current_player);
+		tempBoard = checker_array;
+		
+		sequentialHops(current_cords);
+
+		checker_array = tempBoard;
+		current[0] = tempX;
+		current[1] = tempY;
+
+
+
+
+
+
+
+
+	}
+	if (select_chip(current_cords[0]+2,current_cords[1]+(2*negate*current_player), current_cords)) {
+		//(Game::select_chip(current_cords[0]+2,current_cords[1]+(2*negate*-1*current_player), current_cords)	||
+			//Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*-1*current_player), current_cords)) ) {
+			//currently_selected = true;
+			//render_popup = true;
+
+			move_chip(current_player, current_cords[0]+2, current_cords[1]+(2*negate*current_player), current[0], current[1], isKing); //move the chip
+			remove_chip(current_player, current[0], current[1]); //remove the old chip
+			remove_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player)); //remove opponents chip
+
+			//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
+			make_king(current_player,current_cords[0]+2,current_cords[1]+(2*negate*current_player));
+
+			children.push_back(checker_array);
+
+
+			current[0] = current_cords[0]-2;
+			current[1] = current_cords[1]+(2*negate*current_player);
+			tempBoard = checker_array;
+			
+			sequentialHops(current_cords);
+
+			checker_array = tempBoard;
+			current[0] = tempX;
+			current[1] = tempY;
+
+
+		}
+	if (isKing) {
+
+			negate *= -1;
+			if ((select_chip(current_cords[0]-2, current_cords[1]+(2*negate*current_player),current_cords))) {
+
+
+
+				move_chip(current_player, current_cords[0]-2, current_cords[1]+(2*negate*current_player), current[0], current[1], tempKing); //move the chip
+				remove_chip(current_player, current[0], current[1]); //remove the old chip
+				remove_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)); //remove opponents chip
+				make_king(current_player,current_cords[0]-2,current_cords[1]+(2*negate*current_player));		
+
+				children.push_back(checker_array);
+
+
+				current[0] = current_cords[0]-2;
+				current[1] = current_cords[1]+(2*negate*current_player);
+				tempBoard = checker_array;
+				
+				negate*= -1;
+				sequentialHops(current_cords);
+				negate*= -1;
+
+				checker_array = tempBoard;
+				current[0] = tempX;
+				current[1] = tempY;
+
+			}
+			if (select_chip(current_cords[0]+2, current_cords[1]+(2*negate*current_player),current_cords)) {
+				
+				move_chip(current_player, current_cords[0]+2, current_cords[1]+(2*negate*current_player), current[0], current[1], isKing); //move the chip
+				remove_chip(current_player, current[0], current[1]); //remove the old chip
+				remove_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player)); //remove opponents chip
+
+				//Make king if possible    Pass in the opposite player because current_player was already switched to opposite
+				make_king(current_player,current_cords[0]+2,current_cords[1]+(2*negate*current_player));
+
+				current[0] = current_cords[0]+2;
+				current[1] = current_cords[1]+(2*negate*current_player);
+				tempBoard = checker_array;
+				
+				negate*= -1;
+				sequentialHops(current_cords);
+				negate*= -1;
+
+				checker_array = tempBoard;
+				current[0] = tempX;
+				current[1] = tempY;
+
+			} 
+			negate *= -1;
+
+		}
+
+	checker_array = tempBoard;
+
+	return false;
+
+}
+
 
 void AI::move_chip(int type, int xpos, int ypos,int old_x, int old_y, bool& isKing) {
 	//std::cout << "move chip type: " << checker_array[old_y][old_x] << std::endl;

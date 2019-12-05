@@ -36,6 +36,7 @@ public:
     void remove_chip(int type, int xpos, int ypos);
     void make_king(int type, int xpos, int ypos);
 	void make_trans(int type, int xpos, int ypos);
+	bool sequentialHops(int*& current);
 
 	int getScore(AI::Board board);
 
