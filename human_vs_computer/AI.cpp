@@ -255,10 +255,10 @@ void AI::initBoard() {
 
 	}
 	
-	checker_array.grid[3][2] = GRID_TYPE_B;
-	checker_array.grid[5][4] = GRID_TYPE_B;
-	checker_array.grid[2][1] = GRID_TYPE_R_KING;
-	checker_array.grid[5][6] = GRID_TYPE_B;
+
+	//checker_array.grid[2][1] = GRID_TYPE_B;
+	//checker_array.grid[4][3] = GRID_TYPE_B_KING;
+	//checker_array.grid[6][3] = GRID_TYPE_B;
 
 	//checker_array.grid[6][5] = GRID_TYPE_R_KING;
 	/*
