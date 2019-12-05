@@ -219,7 +219,7 @@ void Game::handleEvents() {
 
 						aiTest->getBoard(aiTest->original_board);
 
-						vector<int> result = minimax(aiTest->original_board,3,true);
+						vector<int> result = minimax(aiTest->original_board,5,true);
 						int move_index = result[1];
 						int eval = result[0];
 						std::cout << "Evaluation func of: " << eval << std::endl;
