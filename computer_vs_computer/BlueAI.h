@@ -7,7 +7,7 @@ using std::vector;
 	//int grid[8][8];
 //};
 
-class AI 
+class BlueAI 
 {
 
 public:
@@ -16,14 +16,14 @@ public:
 	struct Board {
     	int grid[8][8];
 	};
-	AI::Board checker_array;
-	AI::Board original_board;
+	BlueAI::Board checker_array;
+	BlueAI::Board original_board;
 
 	int curr_depth;
 	bool player;
 
     void initBoard();
-    void getBoard(AI::Board board);
+    void getBoard(BlueAI::Board board);
 
     bool select_chip(int xpos, int ypos, int*& current);
     bool is_chip(int type, int xpos, int ypos);
@@ -38,20 +38,19 @@ public:
 	void make_trans(int type, int xpos, int ypos);
 	bool sequentialHops(int*& current);
 
-	int getScore(AI::Board board);
-	int getScoreBlue(AI::Board board);
+	int getScore(BlueAI::Board board);
 
-	AI::Board returnBoard();
+	BlueAI::Board returnBoard();
 
     int* getCurrentCordsVar();
 
-	AI(int depth, bool player_turn,int currPlayer, AI::Board check_arr);
-	AI();
-	AI(int depth, bool player);
+	BlueAI(int depth, bool player_turn,int currPlayer, BlueAI::Board check_arr);
+	BlueAI();
+	BlueAI(int depth, bool player);
 
 	void getChildren();
 
-	vector<AI::Board> children;
+	vector<BlueAI::Board> children;
 
 	int current_player = GRID_TYPE_B;
 	int negate = -1;

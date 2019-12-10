@@ -319,40 +319,49 @@ void CheckerManager::render() {
 			if (checker_array[i][j] == GRID_TYPE_B) {
 				CheckerManager::update_checker(GRID_TYPE_B, j * 100, i * 100);
 				SDL_RenderCopy(renderer, objTexture_B, &srcRect_B, &destRect_B);
+   				//SDL_DestroyTexture(objTexture_B);
 			}
 			else if (checker_array[i][j] == GRID_TYPE_R) {
 				CheckerManager::update_checker(GRID_TYPE_R, j * 100, i * 100);
 				SDL_RenderCopy(renderer, objTexture_R, &srcRect_R, &destRect_R);
+				//SDL_DestroyTexture(objTexture_R);
 			}
 			else if (checker_array[i][j] == GRID_TYPE_B_TRANS) {
 				CheckerManager::update_checker(GRID_TYPE_B, j * 100, i * 100);
 				SDL_RenderCopy(renderer, objTexture_B_TRANS,&srcRect_B, &destRect_B);
+				//SDL_DestroyTexture(objTexture_B_TRANS);
 			}
 			else if (checker_array[i][j] == GRID_TYPE_R_TRANS) {
 				CheckerManager::update_checker(GRID_TYPE_R, j * 100, i * 100);
 				SDL_RenderCopy(renderer, objTexture_R_TRANS,&srcRect_R, &destRect_R);
+				//SDL_DestroyTexture(objTexture_R_TRANS);
 			}
 			else if (checker_array[i][j] == GRID_TYPE_B_KING) {
 				CheckerManager::update_checker(GRID_TYPE_B, j * 100, i * 100);
 				SDL_RenderCopy(renderer, objTexture_B_KING,&srcRect_B, &destRect_B);
+				//SDL_DestroyTexture(objTexture_B_KING);
 			}
 			else if (checker_array[i][j] == GRID_TYPE_R_KING) {
 				CheckerManager::update_checker(GRID_TYPE_R, j * 100, i * 100);
 				SDL_RenderCopy(renderer, objTexture_R_KING,&srcRect_R, &destRect_R);
+				//SDL_DestroyTexture(objTexture_R_KING);
 			}
 			else if (checker_array[i][j] == GRID_TYPE_B_KING_TRANS) {
 				
 				CheckerManager::update_checker(GRID_TYPE_B, j * 100, i * 100);
 				SDL_RenderCopy(renderer, objTexture_B_KING_TRANS,&srcRect_B, &destRect_B);
+				//SDL_DestroyTexture(objTexture_B_KING_TRANS);
 
 			}			
 			else if (checker_array[i][j] == GRID_TYPE_R_KING_TRANS) {
 				CheckerManager::update_checker(GRID_TYPE_B, j * 100, i * 100);
 				SDL_RenderCopy(renderer, objTexture_R_KING_TRANS,&srcRect_B, &destRect_B);
+				//SDL_DestroyTexture(objTexture_R_KING_TRANS);
 
 			}
 			else if (render_popup) {
 				SDL_RenderCopy(renderer, popup, &srcRect_pop, &destRect_pop);
+				//SDL_DestroyTexture(popup);
 			}
 
 

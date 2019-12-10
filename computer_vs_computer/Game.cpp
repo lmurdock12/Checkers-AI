@@ -5,8 +5,8 @@
 #include "CheckerManager.h"
 #include <iostream>
 #include "AI.h"
-SDL_Renderer* Game::renderer = nullptr;
-SDL_Event Game::event;
+#include <random>
+
 
 GameObject* board;
 CheckerManager* chip_manager;
@@ -14,13 +14,12 @@ CheckerManager* chip_manager;
 
 SDL_Rect srcRect, destRect;
 
-
-vector<int> minimax(AI::Board currentBoard, int depth, bool maximizingPlayer) {
-    AI* currPosition;
+vector<int> minimax(AI::Board currentBoard, int depth, bool maximizingPlayer, int val) {
+    //AI* currPosition;
 	vector<int> results;
     if (depth == 0) {
-        currPosition = new AI(1,true,-1,currentBoard);
-        int score = currPosition->getScore(currPosition->original_board);
+        AI currPosition(1,true,-1,currentBoard);
+        int score = currPosition.getScore(currPosition.original_board);
 
 		results.clear();
 		results.push_back(score);
@@ -30,16 +29,77 @@ vector<int> minimax(AI::Board currentBoard, int depth, bool maximizingPlayer) {
     
     if (maximizingPlayer) {
         //set curr player to -1 for reds children
-        currPosition = new AI(1,true,-1, currentBoard);
+		AI currPosition(1,true,-1, currentBoard);
         int maxEval = -1000000;
         int maxPos = -1;
 		//std::cout << "curr: " << currPosition->current_player << std::endl;
-        for(int i=0; i<currPosition->children.size();i++) {
-            int eval = minimax(currPosition->children[i], depth-1, false)[0];
-            maxEval = std::max(maxEval, eval);
-            if (maxEval == eval) {
-                maxPos = i;
-            }
+        for(int i=0; i<currPosition.children.size();i++) {
+            int eval = minimax(currPosition.children[i], depth-1, false, val)[0];
+
+			if(eval==maxEval) {
+				int a=rand()%2;
+				if(a==1) {
+					maxPos = i;
+				}
+			}
+			else {
+
+				maxEval = std::max(maxEval, eval);
+				if (maxEval == eval) {
+					maxPos = i;
+				}
+			}
+        }
+		results.clear();
+		results.push_back(maxEval);
+		results.push_back(maxPos);
+        return results;
+        
+    } else {
+
+        int minEval = 10000000;
+		AI currPosition(1,true,1, currentBoard);
+        for(int i=0; i<currPosition.children.size();i++) {
+            int eval = minimax(currPosition.children[i], depth-1, true, val)[0];
+            minEval = std::min(minEval, eval);
+        }
+		results.clear();
+		results.push_back(minEval);
+		results.push_back(0);
+        return results;
+    }
+}
+
+vector<int> minimaxBLUE_AlpBet(AI::Board currentBoard, int depth, int alpha, int beta, bool maximizingPlayer) {
+
+	vector<int> results;
+    if (depth == 0) {
+        AI currPosition(1,true,1,currentBoard);
+        int score = currPosition.getScoreBlue(currPosition.original_board);
+
+		results.clear();
+		results.push_back(score);
+		results.push_back(0);
+        return results; //static evaluation here
+    }
+    
+    if (maximizingPlayer) {
+        //set curr player to -1 for reds children
+        AI currPosition(1,true,1, currentBoard);
+        int maxEval = -1000000;
+        int maxPos = -1;
+		//std::cout << "curr: " << currPosition->current_player << std::endl;
+        for(int i=0; i<currPosition.children.size();i++) {
+            int eval = minimaxBLUE_AlpBet(currPosition.children[i], depth-1, alpha, beta, false)[0];
+
+			maxEval = std::max(maxEval, eval);
+			alpha = std::max(alpha,eval);
+			if (beta <= alpha)
+				break;
+			if (maxEval == eval) {
+				maxPos = i;
+			}
+			
         }
         //std::cout << "maxEval: " << maxEval << std::endl;
         //currPosition->getBoard(currPosition->children[maxPos]);
@@ -52,11 +112,15 @@ vector<int> minimax(AI::Board currentBoard, int depth, bool maximizingPlayer) {
     } else {
 
         int minEval = 10000000;
-        currPosition = new AI(1,false,1,currentBoard); //Set currPlayer to 1 to get Blues children
+       AI currPosition(1,false,-1,currentBoard); //Set currPlayer to 1 to get Blues children
         
-        for(int i=0; i<currPosition->children.size();i++) {
-            int eval = minimax(currPosition->children[i], depth-1, true)[0];
+        for(int i=0; i<currPosition.children.size();i++) {
+            int eval = minimaxBLUE_AlpBet(currPosition.children[i], depth-1,alpha, beta, true)[0];
             minEval = std::min(minEval, eval);
+			beta = std::min(beta,eval);
+			if(beta <= alpha) {
+				break;
+			}
         }
 
 		results.clear();
@@ -69,12 +133,12 @@ vector<int> minimax(AI::Board currentBoard, int depth, bool maximizingPlayer) {
 
 }
 
-vector<int> minimaxBLUE(AI::Board currentBoard, int depth, bool maximizingPlayer) {
-    AI* currPosition;
+vector<int> minimaxBLUE(AI::Board currentBoard, int depth, int alpha, int beta, bool maximizingPlayer) {
+
 	vector<int> results;
     if (depth == 0) {
-        currPosition = new AI(1,true,-1,currentBoard);
-        int score = currPosition->getScore(currPosition->original_board);
+        AI currPosition(1,true,1,currentBoard);
+        int score = currPosition.getScoreBlue(currPosition.original_board);
 
 		results.clear();
 		results.push_back(score);
@@ -84,16 +148,19 @@ vector<int> minimaxBLUE(AI::Board currentBoard, int depth, bool maximizingPlayer
     
     if (maximizingPlayer) {
         //set curr player to -1 for reds children
-        currPosition = new AI(1,true,1, currentBoard);
+        AI currPosition(1,true,1, currentBoard);
         int maxEval = -1000000;
         int maxPos = -1;
 		//std::cout << "curr: " << currPosition->current_player << std::endl;
-        for(int i=0; i<currPosition->children.size();i++) {
-            int eval = minimax(currPosition->children[i], depth-1, false)[0];
-            maxEval = std::max(maxEval, eval);
-            if (maxEval == eval) {
-                maxPos = i;
-            }
+        for(int i=0; i<currPosition.children.size();i++) {
+            int eval = minimaxBLUE(currPosition.children[i], depth-1, alpha, beta, false)[0];
+
+			maxEval = std::max(maxEval, eval);
+			alpha = std::max(alpha,eval);
+			if (maxEval == eval) {
+				maxPos = i;
+			}
+			
         }
         //std::cout << "maxEval: " << maxEval << std::endl;
         //currPosition->getBoard(currPosition->children[maxPos]);
@@ -106,11 +173,12 @@ vector<int> minimaxBLUE(AI::Board currentBoard, int depth, bool maximizingPlayer
     } else {
 
         int minEval = 10000000;
-        currPosition = new AI(1,false,-1,currentBoard); //Set currPlayer to 1 to get Blues children
+       AI currPosition(1,false,-1,currentBoard); //Set currPlayer to 1 to get Blues children
         
-        for(int i=0; i<currPosition->children.size();i++) {
-            int eval = minimax(currPosition->children[i], depth-1, true)[0];
+        for(int i=0; i<currPosition.children.size();i++) {
+            int eval = minimaxBLUE(currPosition.children[i], depth-1,alpha, beta, true)[0];
             minEval = std::min(minEval, eval);
+			
         }
 
 		results.clear();
@@ -135,6 +203,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 	if (SDL_Init(SDL_INIT_EVERYTHING) == 0) { //If Init() == 0; that means success.
 		std::cout << "Subsystems Initialized!..." << std::endl;
 
+		
 		window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 		if (window) { //if window is true then it has been successfully created
 			std::cout << "Window created!" << std::endl;
@@ -145,7 +214,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 			SDL_SetRenderDrawColor(renderer, 255, 244, 244, 24);
 			std::cout << "Renderer created!" << std::endl;
 		}
-
+	
 		isRunning = true; //if init works successfully then continue to run
 	}
 	else {
@@ -177,103 +246,6 @@ void Game::handleEvents() {
 		case SDL_QUIT://if the X is pressed then end the game
 			isRunning = false;
 			break;
-		case SDL_MOUSEBUTTONDOWN:
-			std::cout << "---------------" << std::endl;
-
-			int x, y;
-			
-			//SDL_MouseButtonEvent b = event.button;
-			if (event.button.button == SDL_BUTTON_LEFT) {
-				SDL_GetMouseState(&x, &y);
-				std::cout << "X is: " << x << std::endl;
-				std::cout << "Y is: " << y << std::endl;
-
-				
-				pop_status = chip_manager->getPopupStatus();
-				if (pop_status) {
-					if (x>=400 && x <=1200 && y >= 400 && y <= 600) {
-							//make another move
-
-							chip_manager->make_trans(current_player, current_cords[0], current_cords[1]);
-
-							chip_manager->enablePopup(false);
-							currently_selected = true;
-							concurrent = true;
-					} else if (x>=400 && x<=1200 && y>=600 && y<=800){
-							//switch player
-							chip_manager->enablePopup(false);
-							currently_selected = false;
-							current_player = current_player*-1;
-					}
-
-
-				} else {
-
-
-
-
-
-				int x_cord = (x/100)/2; //Divide by size of square (100) and then divide by 2 since the board is currently doubled to 1600 pixels.
-				int y_cord = (y/100)/2;
-				//std::cout << "X is: " << x_cord << std::endl;
-				//std::cout << "Y is: " << y_cord << std::endl;
-
-
-				//If a chip is not currently selected, then see if a valid chip selection is made.
-				if (!currently_selected) { 
-					negate = -1;
-					Game::select_chip(x_cord, y_cord, current_cords);
-					//std::cout << "zFirst" << std::endl;
-					isKing = chip_manager->is_king(current_player, x_cord, y_cord);
-					if (!currently_selected && isKing) {
-						//std::cout << "zSecond" << std::endl;
-						negate = 1;
-						Game::select_chip(x_cord, y_cord, current_cords);
-					}
-
-
-				}
-
-
-				//std::cout << "Currently selected" << currently_selected << std::endl;
-				//if chip selected and equals grid type B
-				//show valid moves
-				//determine if move is valid and update chips
-				
-				//std::cout << "KING: " << isKing << std::endl;
-				if (currently_selected) {
-
-					//int cont = false; 
-
-					//std::cout << "First" << std::endl;
-					negate = -1;
-					successfulMove = Game::validate_move(x_cord, y_cord, current_cords, isKing);
-					std::cout << successfulMove << std::endl;
-					isKing = chip_manager->is_king(current_player,current_cords[0], current_cords[1]);
-
-
-
-					if (currently_selected && isKing) {
-						std::cout << "Second"<<  std::endl;
-						negate = 1;
-						successfulMove= Game::validate_move(x_cord, y_cord, current_cords, isKing);
-
-					}
-
-					std::cout << successfulMove << std::endl;
-
-				}
-
-				}
-
-
-
-
-					//at the end of validate move function, run the spot through the select chip function, 
-					//if a different chip is selected then select that one.
-					
-
-			}
 
 		default:
 			break;
@@ -282,47 +254,172 @@ void Game::handleEvents() {
 }
 
 
-void Game::update() {
+void Game::update(int val) {
 	//board->Update();
 
-	std::cout << "---------------_" << std::endl;
-	std::cout << "Successful move: " << successfulMove << std::endl;
-	std::cout << "Currently selected: " << currently_selected << std::endl;
+	//std::cout << "---------------_" << std::endl;
+	//std::cout << "Successful move: " << successfulMove << std::endl;
+	//std::cout << "Currently selected: " << currently_selected << std::endl;
 
 	if(successfulMove && !currently_selected) {
-		SDL_Delay(1000);
-		std::cout << "got a successful move#####" << std::endl;
+		SDL_Delay(1);
+		//std::cout << "got a successful move#####" << std::endl;
 		successfulMove = false;
 
-		AI* aiTest = new AI(3,true);
+		AI aiTest(3,true);
+		
 
 		for(int i=0;i<8;i++) {
 			for(int j=0;j<8;j++) {
 
-				aiTest->original_board.grid[j][i] = chip_manager->checker_array[j][i]; 
+				aiTest.original_board.grid[j][i] = chip_manager->checker_array[j][i]; 
 			}
 		}
 
-		aiTest->getBoard(aiTest->original_board);
+		//aiTest->getBoard(aiTest->original_board);
 
-		vector<int> result = minimax(aiTest->original_board,5,true);
+		vector<int> result = minimax(aiTest.original_board,5,true,val);
 		int move_index = result[1];
 		int eval = result[0];
-		std::cout << "Evaluation func of: " << eval << std::endl;
+		//std::cout << "Evaluation func of: " << eval << std::endl;
 
-		aiTest->checker_array = aiTest->original_board;
-		aiTest->current_player = -1;
-		aiTest->getChildren();
-		int size = aiTest->children.size();
-		std::cout << "possible moves: " << size << std::endl;
-		std::cout << "move index: " << move_index << std::endl;
+		aiTest.checker_array = aiTest.original_board;
+		aiTest.current_player = -1;
+		aiTest.getChildren();
+		int size = aiTest.children.size();
+		//std::cout << "possible moves: " << size << std::endl;
+		//std::cout << "move index: " << move_index << std::endl;
 
-		aiTest->getBoard(aiTest->children[move_index]);
+		if(size == 0 || move_index == -1) {
+			currently_selected = false;
+			current_player = current_player*-1;
+			successfulMove = true;
+			return;
+		}
+
+		vector<int> sameScoreIndex;
+		for(int k=0;k<aiTest.children.size();k++) {
+			if(aiTest.getScore(aiTest.children[k]) == eval) {
+				//std::cout<< "TRUEEEEE" << std::endl;
+				sameScoreIndex.push_back(k);
+			}
+		}
+		int xx;
+		if(sameScoreIndex.size()>1) {
+			srand(time(NULL));
+			xx = rand() % sameScoreIndex.size();
+			//std::cout << "Rand index is: " << xx << std::endl;
+			move_index = sameScoreIndex[xx];
+		}
+
+
+
+
+
+		//aiTest->getBoard(aiTest->children[move_index]);
 		
 		for(int i=0;i<8;i++) {
 			for(int j=0;j<8;j++) {
 
-				chip_manager->checker_array[j][i] = aiTest->children[move_index].grid[j][i];
+				chip_manager->checker_array[j][i] = aiTest.children[move_index].grid[j][i];
+			}
+		}
+
+		currently_selected = false;
+		current_player = current_player*-1;
+		successfulMove = true;
+		
+
+	}
+
+
+
+}
+
+
+void Game::initBoard() {
+
+	chip_manager->initBoard();
+	current_player = GRID_TYPE_B;
+	current_cords = new int[2];
+	concurrent = false;
+
+	//Set this to true to play AI against AI
+	successfulMove = true;
+
+}
+void Game::updateBlue() {
+	//board->Update();
+
+	//std::cout << "---------------_" << std::endl;
+	//std::cout << "Successful move: " << successfulMove << std::endl;
+	//std::cout << "Currently selected: " << currently_selected << std::endl;
+
+	if(successfulMove && !currently_selected && current_player == 1) {
+		SDL_Delay(1);
+		//std::cout << "got a successful move#####" << std::endl;
+		successfulMove = false;
+
+		AI aiTest(3,true);
+
+		for(int i=0;i<8;i++) {
+			for(int j=0;j<8;j++) {
+
+				aiTest.original_board.grid[j][i] = chip_manager->checker_array[j][i]; 
+			}
+		}
+
+		//aiTest->getBoard(aiTest->original_board);
+
+		vector<int> result = minimaxBLUE(aiTest.original_board,7,-100000000,100000000,true);
+		int move_index = result[1];
+		int eval = result[0];
+		//std::cout << "Evaluation func of: " << eval << std::endl;
+
+		aiTest.checker_array = aiTest.original_board;
+		aiTest.current_player = 1;
+		aiTest.getChildren();
+		int size = aiTest.children.size();
+		//std::cout << "possible moves: " << size << std::endl;
+		//std::cout << "move index: " << move_index << std::endl;
+
+		if(size == 0) {
+			currently_selected = false;
+			current_player = current_player*-1;
+			successfulMove = true;
+			return;
+		}
+
+
+		vector<int> sameScoreIndex;
+		for(int k=0;k<aiTest.children.size();k++) {
+			if(aiTest.getScoreBlue(aiTest.children[k]) == eval) {
+				//std::cout<< "TRUEEEEE" << std::endl;
+				sameScoreIndex.push_back(k);
+			}
+		}
+
+		int xx;
+		if(sameScoreIndex.size()>1) {
+
+
+			srand(time(NULL));
+			xx = rand() % sameScoreIndex.size();
+			//std::cout << "Rand index is: " << xx << std::endl;
+			move_index = sameScoreIndex[xx];
+		}
+
+
+
+		//std::cout << "SAMESCORE SIZE: " << sameScoreIndex.size() << std::endl;
+		//std::cout << "Rand index is: " << xx << std::endl;
+
+		//aiTest->getBoard(aiTest->children[move_index]);
+		
+		for(int i=0;i<8;i++) {
+			for(int j=0;j<8;j++) {
+
+				chip_manager->checker_array[j][i] = aiTest.children[move_index].grid[j][i];
 			}
 		}
 
@@ -339,57 +436,35 @@ void Game::update() {
 
 
 
-void Game::updateBlue() {
-	//board->Update();
+void Game::getFinalBoard() {
 
-	std::cout << "---------------_" << std::endl;
-	std::cout << "Successful move: " << successfulMove << std::endl;
-	std::cout << "Currently selected: " << currently_selected << std::endl;
+    std::cout << "################" << std::endl;
 
-	if(successfulMove && !currently_selected) {
-		SDL_Delay(1000);
-		std::cout << "got a successful move#####" << std::endl;
-		successfulMove = false;
+    for (int i=0; i<8;i++) { //Loop through rows
 
-		AI* aiTest = new AI(3,true);
+        for (int j=0; j<8; j++) { //Loop through columns
 
-		for(int i=0;i<8;i++) {
-			for(int j=0;j<8;j++) {
+            if (chip_manager->checker_array[i][j] == GRID_TYPE_NONE) {
+                std::cout << "_";
+            }
+            if (chip_manager->checker_array[i][j] == GRID_TYPE_B) {
+                std::cout << "B";
+            }
+            if (chip_manager->checker_array[i][j] == GRID_TYPE_R) {
+                std::cout << "R";
+            }
+            if (chip_manager->checker_array[i][j] == GRID_TYPE_B_KING) {
+                std::cout << "K";
+            }
+            if (chip_manager->checker_array[i][j] == GRID_TYPE_R_KING) {
+                std::cout << "K";
+            }
+            std::cout << " ";
+        }
+        std::cout << std::endl;
 
-				aiTest->original_board. grid[j][i] = chip_manager->checker_array[j][i]; 
-			}
-		}
-
-		aiTest->getBoard(aiTest->original_board);
-
-		vector<int> result = minimaxBLUE(aiTest->original_board,5,true);
-		int move_index = result[1];
-		int eval = result[0];
-		std::cout << "Evaluation func of: " << eval << std::endl;
-
-		aiTest->checker_array = aiTest->original_board;
-		aiTest->current_player = 1;
-		aiTest->getChildren();
-		int size = aiTest->children.size();
-		std::cout << "possible moves: " << size << std::endl;
-		std::cout << "move index: " << move_index << std::endl;
-
-		aiTest->getBoard(aiTest->children[move_index]);
-		
-		for(int i=0;i<8;i++) {
-			for(int j=0;j<8;j++) {
-
-				chip_manager->checker_array[j][i] = aiTest->children[move_index].grid[j][i];
-			}
-		}
-
-		currently_selected = false;
-		current_player = current_player*-1;
-		successfulMove = true;
-		
-
-	}
-
+    }
+    std::cout << "################" << std::endl;
 
 
 }
@@ -416,6 +491,75 @@ void Game::clean() {
 }
 
 
+int Game::get_winner() {
+
+		int redCount = 0;
+		int blueCount = 0;
+		for(int i=0;i<8;i++) {
+			for(int j=0;j<8;j++) {
+				if (chip_manager->checker_array[j][i] == GRID_TYPE_B ||
+					chip_manager->checker_array[j][i] == GRID_TYPE_B_KING) {
+						blueCount += 1;
+					}
+				if (chip_manager->checker_array[j][i] == GRID_TYPE_R ||
+					chip_manager->checker_array[j][i] == GRID_TYPE_R_KING) {
+						redCount += 1;
+					}
+								
+			}
+		}
+
+		if(blueCount > redCount ) {
+			std::cout << "blue wins" << std::endl;
+			return 1;
+
+		}
+		else if (redCount > blueCount) {
+			std::cout << "red wins" << std::endl;
+			return -1;
+		}
+		else {
+			return 0;
+		}
+
+
+
+}
+
+int Game::check_status() {
+
+
+		bool foundBlue = false;
+		bool foundRed = false;
+		for(int i=0;i<8;i++) {
+			for(int j=0;j<8;j++) {
+				if (chip_manager->checker_array[j][i] == GRID_TYPE_B ||
+					chip_manager->checker_array[j][i] == GRID_TYPE_B_KING) {
+						foundBlue = true;
+					}
+				if (chip_manager->checker_array[j][i] == GRID_TYPE_R ||
+					chip_manager->checker_array[j][i] == GRID_TYPE_R_KING) {
+						foundRed = true;
+					}
+								
+			}
+		}
+
+		if(foundBlue && !foundRed) {
+			std::cout << "blue wins" << std::endl;
+			return 1;
+
+		}
+		else if (foundRed && !foundBlue) {
+			std::cout << "red wins" << std::endl;
+			return -1;
+		}
+		else {
+			return 0;
+		}
+
+
+}
 
 bool Game::select_chip(int xpos, int ypos, int*& current) {
 

@@ -1,4 +1,4 @@
-#include "AI.h"
+#include "BlueAI.h"
 #include <iostream>
 #include <vector>
 
@@ -9,7 +9,7 @@ using std::vector;
 
 
 
-AI::AI(int depth, bool player_turn, int currPlayer, AI::Board check_arr) {
+BlueAI::AI(int depth, bool player_turn, int currPlayer, BlueAI::Board check_arr) {
 	curr_depth = depth;
 	player = player_turn;
 
@@ -21,30 +21,30 @@ AI::AI(int depth, bool player_turn, int currPlayer, AI::Board check_arr) {
 	getChildren();
 }
 
-AI::AI(int depth, bool player) {
+BlueAI::AI(int depth, bool player) {
 	curr_depth = depth;
 	player = player;
 
 }
 
-int AI::getScore(AI::Board board) {
+int BlueAI::getScore(BlueAI::Board board) {
 
 	int B_count = 0;
 	int R_count = 0;
 
     for (int i=0; i<8;i++) { //Loop through rows
         for (int j=0; j<8; j++) { //Loop through columns
-            if (board.grid[j][i] == GRID_TYPE_B) {
+            if (board.grid[i][j] == GRID_TYPE_B) {
                 B_count += 1;
             }
-            if (board.grid[j][i] == GRID_TYPE_R) {
+            if (board.grid[i][j] == GRID_TYPE_R) {
                 R_count += 1;
             }
-            if (board.grid[j][i] == GRID_TYPE_B_KING) {
-                B_count += 1;
+            if (board.grid[i][j] == GRID_TYPE_B_KING) {
+                B_count += 2;
             }
-            if (board.grid[j][i] == GRID_TYPE_R_KING) {
-                R_count += 1;
+            if (board.grid[i][j] == GRID_TYPE_R_KING) {
+                R_count += 2;
             }
         }
     }
@@ -53,46 +53,7 @@ int AI::getScore(AI::Board board) {
 }
 
 
-
-int AI::getScoreBlue(AI::Board board) {
-
-	int B_count = 0;
-	int R_count = 0;
-
-    for (int i=0; i<8;i++) { //Loop through rows
-        for (int j=0; j<8; j++) { //Loop through columns
-            if (board.grid[j][i] == GRID_TYPE_B) {
-				if(j<4) {
-					B_count += 1;
-				} else {
-					B_count+=1;
-				}
-
-
-            }
-            if (board.grid[j][i] == GRID_TYPE_R) {
-				if(j>4) {
-					R_count += 1;
-				} else {
-					R_count+=1;
-				}
-
-            }
-            if (board.grid[j][i] == GRID_TYPE_B_KING) {
-                B_count += 3;
-            }
-            if (board.grid[j][i] == GRID_TYPE_R_KING) {
-                R_count += 3;
-            }
-        }
-    }
-
-	return B_count-R_count;
-}
-
-
-
-void AI::getChildren() {
+void BlueAI::getChildren() {
 
     
     //std::cout << "Main file test" << std::endl;
@@ -242,12 +203,12 @@ void AI::getChildren() {
         }
 
     }	
-	delete current;
+
 	//std::cout << children.size() << std::endl;
 
 }
 
-void AI::initBoard() {
+void BlueAI::initBoard() {
 
 	for (int i = 0; i < 3; i++) { //rows 0,1,2
 		if (i % 2 == 1) {
@@ -319,17 +280,17 @@ void AI::initBoard() {
 
 }
 
-AI::Board AI::returnBoard() {
+BlueAI::Board BlueAI::returnBoard() {
 	return checker_array;
 }
 
-int* AI::getCurrentCordsVar() {
+int* BlueAI::getCurrentCordsVar() {
 
     return current_cords;
 
 }
 
-void AI::getBoard(AI::Board board) {
+void BlueAI::getBoard(BlueAI::Board board) {
 
     std::cout << "################" << std::endl;
 
@@ -364,7 +325,7 @@ void AI::getBoard(AI::Board board) {
 
 
 
-bool AI::is_chip(int type, int xpos, int ypos) {
+bool BlueAI::is_chip(int type, int xpos, int ypos) {
 
 	if (type == GRID_TYPE_B || type == GRID_TYPE_B_KING) {
 		if (checker_array.grid[ypos][xpos] == GRID_TYPE_B || checker_array.grid[ypos][xpos] == GRID_TYPE_B_KING ||
@@ -380,7 +341,7 @@ bool AI::is_chip(int type, int xpos, int ypos) {
 
 }
 
-bool AI::is_king(int type, int xpos, int ypos) {
+bool BlueAI::is_king(int type, int xpos, int ypos) {
 	//std::cout << checker_array[ypos][xpos] << std::endl;
 	if (type == GRID_TYPE_B) {
 		if (checker_array.grid[ypos][xpos] == GRID_TYPE_B_KING) {
@@ -401,7 +362,7 @@ bool AI::is_king(int type, int xpos, int ypos) {
 
 }
 
-bool AI::any_chip( int xpos, int ypos) {
+bool BlueAI::any_chip( int xpos, int ypos) {
 
 		//std::cout << "chip spot is: " << checker_array[6][7] << std::endl;
 		//std::cout << "empty spot is: " << checker_array[7][8] << std::endl;
@@ -420,20 +381,20 @@ bool AI::any_chip( int xpos, int ypos) {
 
 }
 
-void AI::get_current(int*& current) {
+void BlueAI::get_current(int*& current) {
 
     std::cout << "Current Xpos is: " << current[0] << std::endl;
     std::cout << "Current Ypos is: " << current[1] << std::endl;
     
 }
 
-void AI::set_currently_selected(bool var) {
+void BlueAI::set_currently_selected(bool var) {
 
     currently_selected = var;
 
 }
 
-bool AI::select_chip(int xpos, int ypos, int*& current) {
+bool BlueAI::select_chip(int xpos, int ypos, int*& current) {
 
 
 
@@ -586,7 +547,7 @@ bool AI::select_chip(int xpos, int ypos, int*& current) {
 	}
 
 
-bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
+bool BlueAI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 
 
@@ -672,14 +633,14 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 				int tempX = current[0];
 				int tempY = current[1];
-				AI::Board tempB = checker_array;
+				BlueAI::Board tempBoard = checker_array;
 
 				current[0] = xpos;
 				current[1] = ypos;
 
 				sequentialHops(current_cords);
 
-				checker_array = tempB;
+				checker_array = tempBoard;
 				current[0] = tempX;
 				current[1] = tempY;
 
@@ -703,14 +664,14 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 				int tempX = current[0];
 				int tempY = current[1];
-				AI::Board tempB = checker_array;
+				BlueAI::Board tempBoard = checker_array;
 
 				current[0] = xpos;
 				current[1] = ypos;
 
 				sequentialHops(current_cords);
 
-				checker_array = tempB;
+				checker_array = tempBoard;
 				current[0] = tempX;
 				current[1] = tempY;
 
@@ -732,9 +693,9 @@ bool AI::validate_move(int xpos, int ypos,int*& current, bool isKing) {
 
 
 
-bool AI::sequentialHops(int*& current) {
+bool BlueAI::sequentialHops(int*& current) {
 
-	AI::Board tempBoard;
+	BlueAI::Board tempBoard;
 	int tempX = current[0];
 	int tempY = current[1];
 	make_trans(current_player, current_cords[0], current_cords[1]);	
@@ -744,7 +705,6 @@ bool AI::sequentialHops(int*& current) {
 	if ( (select_chip(current_cords[0]-2,current_cords[1]+(2*negate*current_player), current_cords))) {
 
 		tempKing = is_king(current_player,current_cords[0], current_cords[1]);
-
 
 		move_chip(current_player, current_cords[0]-2, current_cords[1]+(2*negate*current_player), current[0], current[1], tempKing); //move the chip
 		remove_chip(current_player, current[0], current[1]); //remove the old chip
@@ -756,7 +716,7 @@ bool AI::sequentialHops(int*& current) {
 
 		current[0] = current_cords[0]-2;
 		current[1] = current_cords[1]+(2*negate*current_player);
-		
+		tempBoard = checker_array;
 		
 		sequentialHops(current_cords);
 
@@ -765,7 +725,7 @@ bool AI::sequentialHops(int*& current) {
 		current[1] = tempY;
 
 
-		
+
 
 
 
@@ -777,7 +737,7 @@ bool AI::sequentialHops(int*& current) {
 			//Game::select_chip(current_cords[0]-2,current_cords[1]+(2*negate*-1*current_player), current_cords)) ) {
 			//currently_selected = true;
 			//render_popup = true;
-			tempBoard = checker_array;
+
 			tempKing = is_king(current_player,current_cords[0], current_cords[1]);
 
 			move_chip(current_player, current_cords[0]+2, current_cords[1]+(2*negate*current_player), current[0], current[1], tempKing); //move the chip
@@ -792,7 +752,7 @@ bool AI::sequentialHops(int*& current) {
 
 			current[0] = current_cords[0]+2;
 			current[1] = current_cords[1]+(2*negate*current_player);
-
+			tempBoard = checker_array;
 			
 			sequentialHops(current_cords);
 
@@ -808,7 +768,7 @@ bool AI::sequentialHops(int*& current) {
 			if ((select_chip(current_cords[0]-2, current_cords[1]+(2*negate*current_player),current_cords))) {
 
 
-				tempBoard = checker_array;
+
 				move_chip(current_player, current_cords[0]-2, current_cords[1]+(2*negate*current_player), current[0], current[1], tempKing); //move the chip
 				remove_chip(current_player, current[0], current[1]); //remove the old chip
 				remove_chip(current_player*-1, current[0]-1, current[1]+(negate*current_player)); //remove opponents chip
@@ -819,7 +779,7 @@ bool AI::sequentialHops(int*& current) {
 
 				current[0] = current_cords[0]-2;
 				current[1] = current_cords[1]+(2*negate*current_player);
-
+				tempBoard = checker_array;
 				
 				negate*= -1;
 				sequentialHops(current_cords);
@@ -832,8 +792,6 @@ bool AI::sequentialHops(int*& current) {
 			}
 			if (select_chip(current_cords[0]+2, current_cords[1]+(2*negate*current_player),current_cords)) {
 				
-
-				tempBoard = checker_array;
 				move_chip(current_player, current_cords[0]+2, current_cords[1]+(2*negate*current_player), current[0], current[1], tempKing); //move the chip
 				remove_chip(current_player, current[0], current[1]); //remove the old chip
 				remove_chip(current_player*-1, current[0]+1, current[1]+(negate*current_player)); //remove opponents chip
@@ -845,7 +803,7 @@ bool AI::sequentialHops(int*& current) {
 
 				current[0] = current_cords[0]+2;
 				current[1] = current_cords[1]+(2*negate*current_player);
-
+				tempBoard = checker_array;
 				
 				negate*= -1;
 				sequentialHops(current_cords);
@@ -860,14 +818,14 @@ bool AI::sequentialHops(int*& current) {
 
 		}
 
-	//checker_array = tempBoard;
+	checker_array = tempBoard;
 
 	return false;
 
 }
 
 
-void AI::move_chip(int type, int xpos, int ypos,int old_x, int old_y, bool& isKing) {
+void BlueAI::move_chip(int type, int xpos, int ypos,int old_x, int old_y, bool& isKing) {
 	//std::cout << "move chip type: " << checker_array[old_y][old_x] << std::endl;
 	if (type == GRID_TYPE_B) {
 		if(checker_array.grid[old_y][old_x] == GRID_TYPE_B_KING_TRANS) {
@@ -890,7 +848,7 @@ void AI::move_chip(int type, int xpos, int ypos,int old_x, int old_y, bool& isKi
 	isKing = false;
 }
 
-void AI::remove_chip(int type, int xpos, int ypos) {
+void BlueAI::remove_chip(int type, int xpos, int ypos) {
 
 	if (type == GRID_TYPE_B) {
 		checker_array.grid[ypos][xpos] = GRID_TYPE_NONE;
@@ -907,7 +865,7 @@ void AI::remove_chip(int type, int xpos, int ypos) {
 
 }
 
-void AI::make_king(int type, int xpos, int ypos) {
+void BlueAI::make_king(int type, int xpos, int ypos) {
 
 
 	if(type == GRID_TYPE_B && ypos == 0) {
@@ -919,7 +877,7 @@ void AI::make_king(int type, int xpos, int ypos) {
 
 }
 
-void AI::make_trans(int type, int xpos, int ypos) {
+void BlueAI::make_trans(int type, int xpos, int ypos) {
 
 	if (type == GRID_TYPE_B) {
 		if (checker_array.grid[ypos][xpos] == GRID_TYPE_B_KING) {
