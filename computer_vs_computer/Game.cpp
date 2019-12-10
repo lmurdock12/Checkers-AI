@@ -69,7 +69,59 @@ vector<int> minimax(AI::Board currentBoard, int depth, bool maximizingPlayer) {
 
 }
 
+vector<int> minimaxBLUE(AI::Board currentBoard, int depth, bool maximizingPlayer) {
+    AI* currPosition;
+	vector<int> results;
+    if (depth == 0) {
+        currPosition = new AI(1,true,-1,currentBoard);
+        int score = currPosition->getScore(currPosition->original_board);
 
+		results.clear();
+		results.push_back(score);
+		results.push_back(0);
+        return results; //static evaluation here
+    }
+    
+    if (maximizingPlayer) {
+        //set curr player to -1 for reds children
+        currPosition = new AI(1,true,1, currentBoard);
+        int maxEval = -1000000;
+        int maxPos = -1;
+		//std::cout << "curr: " << currPosition->current_player << std::endl;
+        for(int i=0; i<currPosition->children.size();i++) {
+            int eval = minimax(currPosition->children[i], depth-1, false)[0];
+            maxEval = std::max(maxEval, eval);
+            if (maxEval == eval) {
+                maxPos = i;
+            }
+        }
+        //std::cout << "maxEval: " << maxEval << std::endl;
+        //currPosition->getBoard(currPosition->children[maxPos]);
+
+		results.clear();
+		results.push_back(maxEval);
+		results.push_back(maxPos);
+        return results;
+        
+    } else {
+
+        int minEval = 10000000;
+        currPosition = new AI(1,false,-1,currentBoard); //Set currPlayer to 1 to get Blues children
+        
+        for(int i=0; i<currPosition->children.size();i++) {
+            int eval = minimax(currPosition->children[i], depth-1, true)[0];
+            minEval = std::min(minEval, eval);
+        }
+
+		results.clear();
+		results.push_back(minEval);
+		results.push_back(0);
+        return results;
+    }
+
+
+
+}
 
 
 void Game::init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen) {
@@ -114,6 +166,8 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 	current_cords = new int[2];
 	concurrent = false;
 
+	//Set this to true to play AI against AI
+	successfulMove = true;
 }
 
 void Game::handleEvents() {
@@ -274,6 +328,7 @@ void Game::update() {
 
 		currently_selected = false;
 		current_player = current_player*-1;
+		successfulMove = true;
 		
 
 	}
@@ -284,7 +339,60 @@ void Game::update() {
 
 
 
+void Game::updateBlue() {
+	//board->Update();
 
+	std::cout << "---------------_" << std::endl;
+	std::cout << "Successful move: " << successfulMove << std::endl;
+	std::cout << "Currently selected: " << currently_selected << std::endl;
+
+	if(successfulMove && !currently_selected) {
+		SDL_Delay(1000);
+		std::cout << "got a successful move#####" << std::endl;
+		successfulMove = false;
+
+		AI* aiTest = new AI(3,true);
+
+		for(int i=0;i<8;i++) {
+			for(int j=0;j<8;j++) {
+
+				aiTest->original_board. grid[j][i] = chip_manager->checker_array[j][i]; 
+			}
+		}
+
+		aiTest->getBoard(aiTest->original_board);
+
+		vector<int> result = minimaxBLUE(aiTest->original_board,5,true);
+		int move_index = result[1];
+		int eval = result[0];
+		std::cout << "Evaluation func of: " << eval << std::endl;
+
+		aiTest->checker_array = aiTest->original_board;
+		aiTest->current_player = 1;
+		aiTest->getChildren();
+		int size = aiTest->children.size();
+		std::cout << "possible moves: " << size << std::endl;
+		std::cout << "move index: " << move_index << std::endl;
+
+		aiTest->getBoard(aiTest->children[move_index]);
+		
+		for(int i=0;i<8;i++) {
+			for(int j=0;j<8;j++) {
+
+				chip_manager->checker_array[j][i] = aiTest->children[move_index].grid[j][i];
+			}
+		}
+
+		currently_selected = false;
+		current_player = current_player*-1;
+		successfulMove = true;
+		
+
+	}
+
+
+
+}
 
 
 void Game::render() {

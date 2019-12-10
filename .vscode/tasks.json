@@ -10,12 +10,12 @@
             
             "args": [
                 "-g",
-                "human_vs_computer/Main.cpp",
-                "human_vs_computer/Game.cpp",
-                "human_vs_computer/CheckerManager.cpp",
-                "human_vs_computer/GameObject.cpp",
-                "human_vs_computer/TextureManager.cpp",
-                "human_vs_computer/AI.cpp",
+                "computer_vs_computer/Main.cpp",
+                "computer_vs_computer/Game.cpp",
+                "computer_vs_computer/CheckerManager.cpp",
+                "computer_vs_computer/GameObject.cpp",
+                "computer_vs_computer/TextureManager.cpp",
+                "computer_vs_computer/AI.cpp",
                 "-w",
                 "-lSDL2",
                 "-lSDL2_image",
