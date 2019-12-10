@@ -7,29 +7,29 @@
             "label": "checkers",
             "type": "shell",
             "command": "g++",
-            /*
+            
             "args": [
                 "-g",
-                "human_vs_human/Main.cpp",
-                "human_vs_human/Game.cpp",
-                "human_vs_human/CheckerManager.cpp",
-                "human_vs_human/GameObject.cpp",
-                "human_vs_human/TextureManager.cpp",
-                "human_vs_human/AI.cpp",
+                "human_vs_computer/Main.cpp",
+                "human_vs_computer/Game.cpp",
+                "human_vs_computer/CheckerManager.cpp",
+                "human_vs_computer/GameObject.cpp",
+                "human_vs_computer/TextureManager.cpp",
+                "human_vs_computer/AI.cpp",
                 "-w",
                 "-lSDL2",
                 "-lSDL2_image",
                 "-o",
                 "main"
-            ],*/
-            
+            ],
+            /*
             "args":[
                 "-g",
                 "human_vs_computer/AITest.cpp",
                 "human_vs_computer/AI.cpp",
                 "-o",
                 "main"
-            ],
+            ],*/
             "group": {
                 "kind": "build",
                 "isDefault": true

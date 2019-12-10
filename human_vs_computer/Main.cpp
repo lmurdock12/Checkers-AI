@@ -10,6 +10,7 @@ int main(int argc, char*arv[]) {
 	while (game->running()) {
 		//SDL_SetHint (SDL_HINT_RENDER_SCALE_QUALITY, 0);
 		game->handleEvents();
+		game->render();
 		game->update();
 		game->render();
 	}

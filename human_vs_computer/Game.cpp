@@ -204,48 +204,6 @@ void Game::handleEvents() {
 					}
 
 					std::cout << successfulMove << std::endl;
-					if(successfulMove && !currently_selected) {
-						std::cout << "got a successful move#####" << std::endl;
-						successfulMove = false;
-
-						AI* aiTest = new AI(3,true);
-
-						for(int i=0;i<8;i++) {
-							for(int j=0;j<8;j++) {
-
-								aiTest->original_board.grid[j][i] = chip_manager->checker_array[j][i]; 
-							}
-						}
-
-						aiTest->getBoard(aiTest->original_board);
-
-						vector<int> result = minimax(aiTest->original_board,5,true);
-						int move_index = result[1];
-						int eval = result[0];
-						std::cout << "Evaluation func of: " << eval << std::endl;
-
-						aiTest->checker_array = aiTest->original_board;
-						aiTest->current_player = -1;
-						aiTest->getChildren();
-						int size = aiTest->children.size();
-						std::cout << "possible moves: " << size << std::endl;
-						std::cout << "move index: " << move_index << std::endl;
-
-						aiTest->getBoard(aiTest->children[move_index]);
-						
-						for(int i=0;i<8;i++) {
-							for(int j=0;j<8;j++) {
-
-								chip_manager->checker_array[j][i] = aiTest->children[move_index].grid[j][i];
-							}
-						}
-
-						currently_selected = false;
-						current_player = current_player*-1;
-						
-
-					}
-
 
 				}
 
@@ -269,6 +227,55 @@ void Game::handleEvents() {
 
 void Game::update() {
 	//board->Update();
+
+	std::cout << "---------------_" << std::endl;
+	std::cout << "Successful move: " << successfulMove << std::endl;
+	std::cout << "Currently selected: " << currently_selected << std::endl;
+
+	if(successfulMove && !currently_selected) {
+		SDL_Delay(1000);
+		std::cout << "got a successful move#####" << std::endl;
+		successfulMove = false;
+
+		AI* aiTest = new AI(3,true);
+
+		for(int i=0;i<8;i++) {
+			for(int j=0;j<8;j++) {
+
+				aiTest->original_board.grid[j][i] = chip_manager->checker_array[j][i]; 
+			}
+		}
+
+		aiTest->getBoard(aiTest->original_board);
+
+		vector<int> result = minimax(aiTest->original_board,5,true);
+		int move_index = result[1];
+		int eval = result[0];
+		std::cout << "Evaluation func of: " << eval << std::endl;
+
+		aiTest->checker_array = aiTest->original_board;
+		aiTest->current_player = -1;
+		aiTest->getChildren();
+		int size = aiTest->children.size();
+		std::cout << "possible moves: " << size << std::endl;
+		std::cout << "move index: " << move_index << std::endl;
+
+		aiTest->getBoard(aiTest->children[move_index]);
+		
+		for(int i=0;i<8;i++) {
+			for(int j=0;j<8;j++) {
+
+				chip_manager->checker_array[j][i] = aiTest->children[move_index].grid[j][i];
+			}
+		}
+
+		currently_selected = false;
+		current_player = current_player*-1;
+		
+
+	}
+
+
 
 }
 
